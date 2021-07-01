@@ -7,14 +7,14 @@
 
     <parent>
         <groupId>org.openmrs.module</groupId>
-        <artifactId>debezium-connector</artifactId>
+        <artifactId>debezium</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>debezium-connector-omod</artifactId>
+    <artifactId>debezium-omod</artifactId>
     <packaging>jar</packaging>
-    <name>Debezium Connector Module OMOD</name>
-    <description>OMOD project for Debezium Connector Module</description>
+    <name>Debezium Module OMOD</name>
+    <description>OMOD project for Debezium Module</description>
 
     <dependencies>
         <dependency>
@@ -96,10 +96,12 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        
         <plugins>
             <plugin>
                 <groupId>org.openmrs.maven.plugins</groupId>
                 <artifactId>maven-openmrs-plugin</artifactId>
+                <version>1.0.1</version>
                 <extensions>true</extensions>
                 <executions>
                     <execution>

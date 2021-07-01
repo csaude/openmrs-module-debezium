@@ -6,14 +6,14 @@
 
     <parent>
         <groupId>org.openmrs.module</groupId>
-        <artifactId>debezium-connector</artifactId>
+        <artifactId>debezium</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>debezium-connector-api</artifactId>
+    <artifactId>debezium-api</artifactId>
     <packaging>jar</packaging>
-    <name>Debezium Connector Module API</name>
-    <description>API project for Debezium Connector Module</description>
+    <name>Debezium Module API</name>
+    <description>API project for Debezium Module</description>
 
     <dependencies>
         <dependency>
