@@ -39,7 +39,7 @@ public class OpenmrsDebeziumEngineTest {
 	public void beforeDebeziumTest() throws Exception {
 		log.info("\n\nStarting OpenMRS test debezium engine");
 		engine = OpenmrsDebeziumEngine.getInstance();
-		engine.start("localhost", MYSQL_PORT, "root", "test");
+		engine.start(new MysqlDebeziumConfig());
 	}
 	
 	@After

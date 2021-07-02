@@ -5,15 +5,12 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.format.Json;
-import io.debezium.relational.history.FileDatabaseHistory;
 
 /**
  * Wrapper class around a {@link io.debezium.engine.DebeziumEngine} that watches for events in an
@@ -42,33 +39,33 @@ public class OpenmrsDebeziumEngine {
 	/**
 	 * Starts the debezium engine
 	 */
-	protected synchronized void start(String dbHost, Integer port, String dbUser, String dbPass) throws Exception {
+	protected synchronized void start(DebeziumConfig config) {
 		
 		if (debeziumEngine != null) {
-			log.info("\n\nOpenMRS debezium engine is already started");
+			log.info("OpenMRS debezium engine is already started");
 			return;
 		}
 		
-		log.info("\n\nStarting OpenMRS debezium engine...");
+		log.info("Starting OpenMRS debezium engine...");
 		
 		//Engine properties
 		final Properties props = new Properties();
-		props.setProperty("name", "engine");
+		props.setProperty("name", "OpenMRS Debezium Engine");
 		//TODO Add postgres support
-		props.setProperty("connector.class", MySqlConnector.class.getName());
-		props.setProperty("offset.storage", FileOffsetBackingStore.class.getName());//MemoryOffsetBackingStore
-		props.setProperty("offset.storage.file.filename", "./offset.txt");
+		props.setProperty("connector.class", config.getConnectorClass().getName());
+		props.setProperty("offset.storage", config.getOffsetStorageClass().getName());
+		props.setProperty("offset.storage.file.filename", config.getOffsetStorageFilename());
 		props.setProperty("offset.flush.interval.ms", "0");
 		
 		//Common connector properties
-		props.setProperty("database.hostname", "localhost");
-		props.setProperty("database.port", port.toString());
-		props.setProperty("database.user", "root");
-		props.setProperty("database.password", "test");
-		props.setProperty("database.history", FileDatabaseHistory.class.getName());//MemoryDatabaseHistory
-		props.setProperty("database.history.file.filename", "./dbhistory.txt");
-		props.setProperty("snapshot.mode", "");
-		props.setProperty("snapshot.fetch.size", "10240");
+		props.setProperty("database.hostname", config.getHost());
+		props.setProperty("database.port", config.getPort().toString());
+		props.setProperty("database.user", config.getUsername());
+		props.setProperty("database.password", config.getPassword());
+		props.setProperty("database.history", config.getHistoryClass().getName());
+		props.setProperty("database.history.file.filename", config.getHistoryFilename());
+		props.setProperty("snapshot.mode", config.getSnapshotMode().getConnectorValue());
+		//props.setProperty("snapshot.fetch.size", "10240");
 		props.setProperty("table.include.list", "");
 		
 		//Mysql connector properties
@@ -94,7 +91,8 @@ public class OpenmrsDebeziumEngine {
 	 */
 	protected synchronized void stop() throws IOException {
 		if (debeziumEngine != null) {
-			log.info("\n\nStopping OpenMRS debezium engine...");
+			log.info("Stopping OpenMRS debezium engine...");
+			
 			debeziumEngine.close();
 			debeziumEngine = null;
 		}
