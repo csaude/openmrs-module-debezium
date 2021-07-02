@@ -43,10 +43,6 @@ public abstract class DebeziumConfig {
 	
 	private Set<String> tablesToWatch;
 	
-	private void validate() {
-		//validate
-	}
-	
 	/**
 	 * Returns a {@link Properties} instance with the keys as the actual debezium property names and the
 	 * values as the form in which they should be passed to engine and the connector.
@@ -54,8 +50,25 @@ public abstract class DebeziumConfig {
 	 * @return Properties instance
 	 */
 	protected Properties getProperties() {
-		validate();
-		return null;
+		final Properties props = new Properties();
+		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_NAME, ConfigPropertyConstants.ENGINE_DEFAULT_NAME);
+		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_CONNECT_CLASS, getConnectorClass().getName());
+		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_STORAGE_CLASS, getOffsetStorageClass().getName());
+		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_STORAGE_FILE, getOffsetStorageFilename());
+		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_FLUSH_INTERVAL_MS, "0");
+		
+		//Common connector properties
+		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_DB_HOST, getHost());
+		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_DB_PORT, getPort().toString());
+		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_DB_USERNAME, getUsername());
+		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_DB_PASSWORD, getPassword());
+		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_HISTORY_CLASS, getHistoryClass().getName());
+		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE, getHistoryFilename());
+		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_SNAPSHOT_MODE, getSnapshotMode().getPropertyValue());
+		//props.setProperty("snapshot.fetch.size", "10240");
+		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_TABLES_INCLUDE_LIST, String.join(",", tablesToWatch));
+		
+		return props;
 	}
 	
 	/**

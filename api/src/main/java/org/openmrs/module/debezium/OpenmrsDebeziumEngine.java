@@ -48,33 +48,13 @@ final public class OpenmrsDebeziumEngine {
 		
 		log.info("Starting OpenMRS debezium engine...");
 		
-		//Engine properties
-		final Properties props = new Properties();
-		props.setProperty("name", "OpenMRS Debezium Engine");
-		//TODO Add postgres support
-		props.setProperty("connector.class", config.getConnectorClass().getName());
-		props.setProperty("offset.storage", config.getOffsetStorageClass().getName());
-		props.setProperty("offset.storage.file.filename", config.getOffsetStorageFilename());
-		props.setProperty("offset.flush.interval.ms", "0");
-		
-		//Common connector properties
-		props.setProperty("database.hostname", config.getHost());
-		props.setProperty("database.port", config.getPort().toString());
-		props.setProperty("database.user", config.getUsername());
-		props.setProperty("database.password", config.getPassword());
-		props.setProperty("database.history", config.getHistoryClass().getName());
-		props.setProperty("database.history.file.filename", config.getHistoryFilename());
-		props.setProperty("snapshot.mode", config.getSnapshotMode().getPropertyValue());
-		//props.setProperty("snapshot.fetch.size", "10240");
-		props.setProperty("table.include.list", "");
-		
 		//Mysql connector properties
-		props.setProperty("database.include.list", config.getDatabaseName());
-		props.setProperty("snapshot.locking.mode", "extended");
-		props.setProperty("database.ssl.mode", "preferred");
-		props.setProperty("include.schema.changes", "false");
+		//props.setProperty("database.include.list", config.getDatabaseName());
+		//props.setProperty("snapshot.locking.mode", "extended");
+		//props.setProperty("database.ssl.mode", "preferred");
+		//props.setProperty("include.schema.changes", "false");
 		
-		debeziumEngine = DebeziumEngine.create(Json.class).using(props).notifying(record -> {
+		debeziumEngine = DebeziumEngine.create(Json.class).using(config.getProperties()).notifying(record -> {
 			System.out.println("\n\nReceived DB event -> " + record);
 		}).build();
 		
