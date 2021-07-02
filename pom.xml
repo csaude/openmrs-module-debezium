@@ -44,6 +44,7 @@
         <openmrsPlatformVersion>2.3.0</openmrsPlatformVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <debeziumVersion>1.6.0.Final</debeziumVersion>
+        <testContainersVersion>1.15.3</testContainersVersion>
     </properties>
 
     <dependencyManagement>
@@ -88,6 +89,12 @@
                 <artifactId>openmrs-test</artifactId>
                 <version>${openmrsPlatformVersion}</version>
                 <type>pom</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>${testContainersVersion}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

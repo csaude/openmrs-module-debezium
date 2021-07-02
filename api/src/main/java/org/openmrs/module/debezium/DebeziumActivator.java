@@ -23,6 +23,7 @@ public class DebeziumActivator extends BaseModuleActivator {
 	@Override
 	public void started() {
 		log.info("Debezium module started");
+		//TODO Start the debezium engine
 	}
 	
 	/**

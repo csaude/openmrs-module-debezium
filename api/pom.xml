@@ -48,6 +48,10 @@
             <artifactId>openmrs-test</artifactId>
             <type>pom</type>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mysql</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <resources>
