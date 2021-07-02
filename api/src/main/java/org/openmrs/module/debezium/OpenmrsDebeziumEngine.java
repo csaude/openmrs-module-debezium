@@ -16,7 +16,7 @@ import io.debezium.engine.format.Json;
  * Wrapper class around a {@link io.debezium.engine.DebeziumEngine} that watches for events in an
  * OpenMRS database i.e. row inserts, updates and deletes
  */
-public class OpenmrsDebeziumEngine {
+final public class OpenmrsDebeziumEngine {
 	
 	private static final Logger log = LoggerFactory.getLogger(OpenmrsDebeziumEngine.class);
 	
