@@ -64,12 +64,12 @@ final public class OpenmrsDebeziumEngine {
 		props.setProperty("database.password", config.getPassword());
 		props.setProperty("database.history", config.getHistoryClass().getName());
 		props.setProperty("database.history.file.filename", config.getHistoryFilename());
-		props.setProperty("snapshot.mode", config.getSnapshotMode().getConnectorValue());
+		props.setProperty("snapshot.mode", config.getSnapshotMode().getPropertyValue());
 		//props.setProperty("snapshot.fetch.size", "10240");
 		props.setProperty("table.include.list", "");
 		
 		//Mysql connector properties
-		props.setProperty("database.include.list", "");
+		props.setProperty("database.include.list", config.getDatabaseName());
 		props.setProperty("snapshot.locking.mode", "extended");
 		props.setProperty("database.ssl.mode", "preferred");
 		props.setProperty("include.schema.changes", "false");

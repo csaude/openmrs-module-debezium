@@ -1,8 +1,10 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.mysql;
+
+import org.openmrs.module.debezium.SnapshotMode;
 
 /**
- * {@link SnapshotMode} for MySQL, for possible values and their descriptions see
- * https://debezium.io/documentation/reference/1.6/connectors/mysql.html#mysql-property-snapshot-include-collection-list
+ * Enumeration for {@link SnapshotMode} supported by MySQL, for more details please refer to
+ * https://debezium.io/documentation/reference/1.6/connectors/mysql.html#mysql-property-snapshot-mode
  */
 public enum MySqlSnapshotMode implements SnapshotMode {
 	
@@ -19,15 +21,15 @@ public enum MySqlSnapshotMode implements SnapshotMode {
 	 */
 	SCHEMA_ONLY("schema_only");
 	
-	private String connectorValue;
+	private String propertyValue;
 	
-	private MySqlSnapshotMode(String connectorValue) {
-		this.connectorValue = connectorValue;
+	MySqlSnapshotMode(String propertyValue) {
+		this.propertyValue = propertyValue;
 	}
 	
 	@Override
-	public String getConnectorValue() {
-		return connectorValue;
+	public String getPropertyValue() {
+		return propertyValue;
 	}
 	
 }

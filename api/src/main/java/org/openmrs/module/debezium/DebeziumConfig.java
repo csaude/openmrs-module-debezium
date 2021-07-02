@@ -1,10 +1,12 @@
 package org.openmrs.module.debezium;
 
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.kafka.connect.source.SourceConnector;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.apache.kafka.connect.storage.OffsetBackingStore;
+import org.openmrs.module.debezium.mysql.MySqlSnapshotMode;
 
 import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.relational.history.DatabaseHistory;
@@ -41,7 +43,19 @@ public abstract class DebeziumConfig {
 	
 	private Set<String> tablesToWatch;
 	
-	protected DebeziumConfig() {
+	private void validate() {
+		//validate
+	}
+	
+	/**
+	 * Returns a {@link Properties} instance with the keys as the actual debezium property names and the
+	 * values as the form in which they should be passed to engine and the connector.
+	 * 
+	 * @return Properties instance
+	 */
+	protected Properties getProperties() {
+		validate();
+		return null;
 	}
 	
 	/**
