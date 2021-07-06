@@ -2,9 +2,7 @@ package org.openmrs.module.debezium;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.junit.Test;
@@ -35,22 +33,23 @@ public class DebeziumConfigTest {
 	
 	protected void setCoreProperties(DebeziumConfig config) {
 		String tablesToWatch = "patient,person,visit";
-		config.connectorClass(MySqlConnector.class);
-		config.offsetStorageClass(FileOffsetBackingStore.class);
-		config.offsetStorageFilename(storageFilename);
-		config.host(host);
-		config.port(port);
-		config.username(username);
-		config.password(password);
-		config.historyClass(FileDatabaseHistory.class);
-		config.historyFilename(historyFilename);
-		config.snapshotMode(snapshotMode);
-		config.tablesToWatch(Arrays.stream(tablesToWatch.split(",")).collect(Collectors.toSet()));
+		config.setConnectorClass(MySqlConnector.class);
+		config.setOffsetStorageClass(FileOffsetBackingStore.class);
+		config.setOffsetStorageFilename(storageFilename);
+		config.setHost(host);
+		config.setPort(port);
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setHistoryClass(FileDatabaseHistory.class);
+		config.setHistoryFilename(historyFilename);
+		config.setSnapshotMode(snapshotMode);
 	}
 	
 	protected void assertCoreProperties(Properties props) {
 		assertEquals(13, props.size());
 		assertEquals(ConfigPropertyConstants.ENGINE_DEFAULT_NAME, props.get(ConfigPropertyConstants.ENGINE_PROP_NAME));
+		assertEquals(ConfigPropertyConstants.ENGINE_DEFAULT_DB_SERVER_NAME,
+		    props.get(ConfigPropertyConstants.ENGINE_PROP_DB_SERVER_NAME));
 		assertEquals(MySqlConnector.class.getName(), props.get(ConfigPropertyConstants.ENGINE_PROP_CONNECT_CLASS));
 		assertEquals(FileOffsetBackingStore.class.getName(),
 		    props.get(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_STORAGE_CLASS));
@@ -63,7 +62,6 @@ public class DebeziumConfigTest {
 		assertEquals(FileDatabaseHistory.class.getName(), props.get(ConfigPropertyConstants.CONNECTOR_PROP_HISTORY_CLASS));
 		assertEquals(historyFilename, props.get(ConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE));
 		assertEquals(snapshotMode.getPropertyValue(), props.get(ConfigPropertyConstants.CONNECTOR_PROP_SNAPSHOT_MODE));
-		assertEquals(tablesToWatch, props.get(ConfigPropertyConstants.CONNECTOR_PROP_TABLES_INCLUDE_LIST));
 	}
 	
 	@Test

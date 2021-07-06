@@ -1,5 +1,7 @@
 package org.openmrs.module.debezium.mysql;
 
+import java.util.Set;
+
 import org.openmrs.module.debezium.DebeziumConfig;
 
 /**
@@ -12,6 +14,10 @@ public class MySqlDebeziumConfig extends DebeziumConfig {
 	private MySqlSslMode sslMode = MySqlSslMode.PREFERRED;
 	
 	private boolean includeSchemaChanges = false;
+	
+	private Set<String> tablesToInclude;
+	
+	private Set<String> tablesToExclude;
 	
 	/**
 	 * Gets the snapshotLockMode
@@ -26,11 +32,9 @@ public class MySqlDebeziumConfig extends DebeziumConfig {
 	 * Sets the snapshotLockMode
 	 *
 	 * @param snapshotLockMode the snapshotLockMode to set
-	 * @return this instance
 	 */
-	public MySqlDebeziumConfig snapshotLockMode(MySqlSnapshotLockMode snapshotLockMode) {
+	public void setSnapshotLockMode(MySqlSnapshotLockMode snapshotLockMode) {
 		this.snapshotLockMode = snapshotLockMode;
-		return this;
 	}
 	
 	/**
@@ -46,11 +50,9 @@ public class MySqlDebeziumConfig extends DebeziumConfig {
 	 * Sets the sslMode
 	 *
 	 * @param sslMode the sslMode to set
-	 * @return this instance
 	 */
-	public MySqlDebeziumConfig sslMode(MySqlSslMode sslMode) {
+	public void setSslMode(MySqlSslMode sslMode) {
 		this.sslMode = sslMode;
-		return this;
 	}
 	
 	/**
@@ -66,11 +68,44 @@ public class MySqlDebeziumConfig extends DebeziumConfig {
 	 * Sets the includeSchemaChanges
 	 *
 	 * @param includeSchemaChanges the includeSchemaChanges to set
-	 * @return this instance
 	 */
-	public MySqlDebeziumConfig includeSchemaChanges(boolean includeSchemaChanges) {
+	public void setIncludeSchemaChanges(boolean includeSchemaChanges) {
 		this.includeSchemaChanges = includeSchemaChanges;
-		return this;
 	}
 	
+	/**
+	 * Gets the tablesToInclude
+	 *
+	 * @return the tablesToInclude
+	 */
+	public Set<String> getTablesToInclude() {
+		return tablesToInclude;
+	}
+	
+	/**
+	 * Sets the tablesToInclude
+	 *
+	 * @param tablesToInclude the tablesToInclude to set
+	 */
+	public void setTablesToInclude(Set<String> tablesToInclude) {
+		this.tablesToInclude = tablesToInclude;
+	}
+	
+	/**
+	 * Gets the tablesToExclude
+	 *
+	 * @return the tablesToExclude
+	 */
+	public Set<String> getTablesToExclude() {
+		return tablesToExclude;
+	}
+	
+	/**
+	 * Sets the tablesToExclude
+	 *
+	 * @param tablesToExclude the tablesToExclude to set
+	 */
+	public void setTablesToExclude(Set<String> tablesToExclude) {
+		this.tablesToExclude = tablesToExclude;
+	}
 }

@@ -1,7 +1,6 @@
 package org.openmrs.module.debezium;
 
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.kafka.connect.source.SourceConnector;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
@@ -41,8 +40,6 @@ public abstract class DebeziumConfig {
 	
 	private SnapshotMode snapshotMode = MySqlSnapshotMode.INITIAL;
 	
-	private Set<String> tablesToWatch;
-	
 	/**
 	 * Returns a {@link Properties} instance with the keys as the actual debezium property names and the
 	 * values as the form in which they should be passed to engine and the connector.
@@ -52,9 +49,13 @@ public abstract class DebeziumConfig {
 	protected Properties getProperties() {
 		final Properties props = new Properties();
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_NAME, ConfigPropertyConstants.ENGINE_DEFAULT_NAME);
+		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_DB_SERVER_NAME,
+		    ConfigPropertyConstants.ENGINE_DEFAULT_DB_SERVER_NAME);
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_CONNECT_CLASS, getConnectorClass().getName());
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_STORAGE_CLASS, getOffsetStorageClass().getName());
-		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_STORAGE_FILE, getOffsetStorageFilename());
+		if (FileOffsetBackingStore.class.equals(getOffsetStorageClass())) {
+			props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_STORAGE_FILE, getOffsetStorageFilename());
+		}
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_FLUSH_INTERVAL_MS, "0");
 		
 		//Common connector properties
@@ -63,141 +64,13 @@ public abstract class DebeziumConfig {
 		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_DB_USERNAME, getUsername());
 		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_DB_PASSWORD, getPassword());
 		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_HISTORY_CLASS, getHistoryClass().getName());
-		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE, getHistoryFilename());
+		if (FileDatabaseHistory.class.equals(getHistoryClass())) {
+			props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE, getHistoryFilename());
+		}
 		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_SNAPSHOT_MODE, getSnapshotMode().getPropertyValue());
 		//props.setProperty("snapshot.fetch.size", "10240");
-		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_TABLES_INCLUDE_LIST, String.join(",", tablesToWatch));
 		
 		return props;
-	}
-	
-	/**
-	 * Sets the class for the connector
-	 * 
-	 * @param connectorClass connector class to set
-	 */
-	protected DebeziumConfig connectorClass(Class<? extends SourceConnector> connectorClass) {
-		this.connectorClass = connectorClass;
-		return this;
-	}
-	
-	/**
-	 * Sets the class that is responsible for persistence of connector offsets minute.
-	 * 
-	 * @param offsetStorageClass off set storage class to set
-	 */
-	protected DebeziumConfig offsetStorageClass(Class<? extends OffsetBackingStore> offsetStorageClass) {
-		this.offsetStorageClass = offsetStorageClass;
-		return this;
-	}
-	
-	/**
-	 * Sets the path to file where offsets are to be stored. Required when offsetStorage is set to the
-	 * 
-	 * @param offsetStorageFilename path to filename to set
-	 */
-	protected DebeziumConfig offsetStorageFilename(String offsetStorageFilename) {
-		this.offsetStorageFilename = offsetStorageFilename;
-		return this;
-	}
-	
-	/**
-	 * Sets the host name for the OpenMRS database
-	 * 
-	 * @param host the host name to set
-	 * @return
-	 */
-	protected DebeziumConfig host(String host) {
-		this.host = host;
-		return this;
-	}
-	
-	/**
-	 * Sets the port number for the OpenMRS database
-	 * 
-	 * @param port port number to set
-	 * @return
-	 */
-	protected DebeziumConfig port(Integer port) {
-		this.port = port;
-		return this;
-	}
-	
-	/**
-	 * Sets the username for the OpenMRS database
-	 * 
-	 * @param username username to set
-	 * @return
-	 */
-	protected DebeziumConfig username(String username) {
-		this.username = username;
-		return this;
-	}
-	
-	/**
-	 * Sets the password for the OpenMRS database
-	 * 
-	 * @param password password to set
-	 * @return
-	 */
-	protected DebeziumConfig password(String password) {
-		this.password = password;
-		return this;
-	}
-	
-	/**
-	 * Sets the name for the OpenMRS database
-	 * 
-	 * @param databaseName database name to set
-	 * @return
-	 */
-	protected DebeziumConfig databaseName(String databaseName) {
-		this.databaseName = databaseName;
-		return this;
-	}
-	
-	/**
-	 * Sets the history class
-	 * 
-	 * @param historyClass history class to set
-	 * @return
-	 */
-	protected DebeziumConfig historyClass(Class<? extends DatabaseHistory> historyClass) {
-		this.historyClass = historyClass;
-		return this;
-	}
-	
-	/**
-	 * Sets the history filename
-	 * 
-	 * @param historyFilename history filename to set
-	 * @return
-	 */
-	protected DebeziumConfig historyFilename(String historyFilename) {
-		this.historyFilename = historyFilename;
-		return this;
-	}
-	
-	/**
-	 * Sets the snapshot mode
-	 * 
-	 * @param snapshotMode snapshot mode to set
-	 * @return
-	 */
-	protected DebeziumConfig snapshotMode(SnapshotMode snapshotMode) {
-		this.snapshotMode = snapshotMode;
-		return this;
-	}
-	
-	/**
-	 * Sets the set of names for the table to watch
-	 * 
-	 * @param tablesToWatch
-	 * @return
-	 */
-	protected DebeziumConfig tablesToWatch(Set<String> tablesToWatch) {
-		this.tablesToWatch = tablesToWatch;
-		return this;
 	}
 	
 	/**
@@ -210,12 +83,30 @@ public abstract class DebeziumConfig {
 	}
 	
 	/**
-	 * Gets the offsetStorage class
+	 * Sets the connectorClass
 	 *
-	 * @return the offsetStorage class
+	 * @param connectorClass the connectorClass to set
+	 */
+	public void setConnectorClass(Class<? extends SourceConnector> connectorClass) {
+		this.connectorClass = connectorClass;
+	}
+	
+	/**
+	 * Gets the offsetStorageClass
+	 *
+	 * @return the offsetStorageClass
 	 */
 	public Class<? extends OffsetBackingStore> getOffsetStorageClass() {
 		return offsetStorageClass;
+	}
+	
+	/**
+	 * Sets the offsetStorageClass
+	 *
+	 * @param offsetStorageClass the offsetStorageClass to set
+	 */
+	public void setOffsetStorageClass(Class<? extends OffsetBackingStore> offsetStorageClass) {
+		this.offsetStorageClass = offsetStorageClass;
 	}
 	
 	/**
@@ -228,12 +119,30 @@ public abstract class DebeziumConfig {
 	}
 	
 	/**
+	 * Sets the offsetStorageFilename
+	 *
+	 * @param offsetStorageFilename the offsetStorageFilename to set
+	 */
+	public void setOffsetStorageFilename(String offsetStorageFilename) {
+		this.offsetStorageFilename = offsetStorageFilename;
+	}
+	
+	/**
 	 * Gets the host
 	 *
 	 * @return the host
 	 */
 	public String getHost() {
 		return host;
+	}
+	
+	/**
+	 * Sets the host
+	 *
+	 * @param host the host to set
+	 */
+	public void setHost(String host) {
+		this.host = host;
 	}
 	
 	/**
@@ -246,12 +155,30 @@ public abstract class DebeziumConfig {
 	}
 	
 	/**
+	 * Sets the port
+	 *
+	 * @param port the port to set
+	 */
+	public void setPort(Integer port) {
+		this.port = port;
+	}
+	
+	/**
 	 * Gets the username
 	 *
 	 * @return the username
 	 */
 	public String getUsername() {
 		return username;
+	}
+	
+	/**
+	 * Sets the username
+	 *
+	 * @param username the username to set
+	 */
+	public void setUsername(String username) {
+		this.username = username;
 	}
 	
 	/**
@@ -264,12 +191,30 @@ public abstract class DebeziumConfig {
 	}
 	
 	/**
+	 * Sets the password
+	 *
+	 * @param password the password to set
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	/**
 	 * Gets the databaseName
 	 *
 	 * @return the databaseName
 	 */
 	public String getDatabaseName() {
 		return databaseName;
+	}
+	
+	/**
+	 * Sets the databaseName
+	 *
+	 * @param databaseName the databaseName to set
+	 */
+	public void setDatabaseName(String databaseName) {
+		this.databaseName = databaseName;
 	}
 	
 	/**
@@ -282,12 +227,30 @@ public abstract class DebeziumConfig {
 	}
 	
 	/**
+	 * Sets the historyClass
+	 *
+	 * @param historyClass the historyClass to set
+	 */
+	public void setHistoryClass(Class<? extends DatabaseHistory> historyClass) {
+		this.historyClass = historyClass;
+	}
+	
+	/**
 	 * Gets the historyFilename
 	 *
 	 * @return the historyFilename
 	 */
 	public String getHistoryFilename() {
 		return historyFilename;
+	}
+	
+	/**
+	 * Sets the historyFilename
+	 *
+	 * @param historyFilename the historyFilename to set
+	 */
+	public void setHistoryFilename(String historyFilename) {
+		this.historyFilename = historyFilename;
 	}
 	
 	/**
@@ -300,12 +263,11 @@ public abstract class DebeziumConfig {
 	}
 	
 	/**
-	 * Gets the tablesToWatch
+	 * Sets the snapshotMode
 	 *
-	 * @return the tablesToWatch
+	 * @param snapshotMode the snapshotMode to set
 	 */
-	public Set<String> getTablesToWatch() {
-		return tablesToWatch;
+	public void setSnapshotMode(SnapshotMode snapshotMode) {
+		this.snapshotMode = snapshotMode;
 	}
-	
 }

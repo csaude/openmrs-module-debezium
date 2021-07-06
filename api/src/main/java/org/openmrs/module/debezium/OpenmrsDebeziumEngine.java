@@ -1,7 +1,6 @@
 package org.openmrs.module.debezium;
 
 import java.io.IOException;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -48,22 +47,14 @@ final public class OpenmrsDebeziumEngine {
 		
 		log.info("Starting OpenMRS debezium engine...");
 		
-		//Mysql connector properties
-		//props.setProperty("database.include.list", config.getDatabaseName());
-		//props.setProperty("snapshot.locking.mode", "extended");
-		//props.setProperty("database.ssl.mode", "preferred");
-		//props.setProperty("include.schema.changes", "false");
-		
 		debeziumEngine = DebeziumEngine.create(Json.class).using(config.getProperties()).notifying(record -> {
 			System.out.println("\n\nReceived DB event -> " + record);
 		}).build();
 		
 		// Run the engine asynchronously ...
-		//TODO Make thread pool size configurable
+		//TODO Possibly set the thread pool size and add a global property for it configurable
 		ExecutorService executor = Executors.newCachedThreadPool();
 		executor.execute(debeziumEngine);
-		//Thread.sleep(30000);
-		// Do something else or wait for a signal or an event
 	}
 	
 	/**
