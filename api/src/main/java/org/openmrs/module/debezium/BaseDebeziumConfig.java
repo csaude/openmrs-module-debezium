@@ -8,13 +8,11 @@ import org.apache.kafka.connect.storage.OffsetBackingStore;
 import org.openmrs.module.debezium.mysql.MySqlSnapshotMode;
 
 import io.debezium.connector.mysql.MySqlConnector;
-import io.debezium.relational.history.DatabaseHistory;
-import io.debezium.relational.history.FileDatabaseHistory;
 
 /**
  * Base class for debezium configuration classes
  */
-public abstract class DebeziumConfig {
+public abstract class BaseDebeziumConfig {
 	
 	//Engine properties
 	private Class<? extends SourceConnector> connectorClass = MySqlConnector.class;
@@ -34,10 +32,6 @@ public abstract class DebeziumConfig {
 	
 	private String databaseName;
 	
-	private Class<? extends DatabaseHistory> historyClass = FileDatabaseHistory.class;
-	
-	private String historyFilename;
-	
 	private SnapshotMode snapshotMode = MySqlSnapshotMode.INITIAL;
 	
 	/**
@@ -46,7 +40,7 @@ public abstract class DebeziumConfig {
 	 * 
 	 * @return Properties instance
 	 */
-	protected Properties getProperties() {
+	public Properties getProperties() {
 		final Properties props = new Properties();
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_NAME, ConfigPropertyConstants.ENGINE_DEFAULT_NAME);
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_DB_SERVER_NAME,
@@ -63,10 +57,6 @@ public abstract class DebeziumConfig {
 		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_DB_PORT, getPort().toString());
 		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_DB_USERNAME, getUsername());
 		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_DB_PASSWORD, getPassword());
-		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_HISTORY_CLASS, getHistoryClass().getName());
-		if (FileDatabaseHistory.class.equals(getHistoryClass())) {
-			props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE, getHistoryFilename());
-		}
 		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_SNAPSHOT_MODE, getSnapshotMode().getPropertyValue());
 		//props.setProperty("snapshot.fetch.size", "10240");
 		
@@ -215,42 +205,6 @@ public abstract class DebeziumConfig {
 	 */
 	public void setDatabaseName(String databaseName) {
 		this.databaseName = databaseName;
-	}
-	
-	/**
-	 * Gets the historyClass
-	 *
-	 * @return the historyClass
-	 */
-	public Class<? extends DatabaseHistory> getHistoryClass() {
-		return historyClass;
-	}
-	
-	/**
-	 * Sets the historyClass
-	 *
-	 * @param historyClass the historyClass to set
-	 */
-	public void setHistoryClass(Class<? extends DatabaseHistory> historyClass) {
-		this.historyClass = historyClass;
-	}
-	
-	/**
-	 * Gets the historyFilename
-	 *
-	 * @return the historyFilename
-	 */
-	public String getHistoryFilename() {
-		return historyFilename;
-	}
-	
-	/**
-	 * Sets the historyFilename
-	 *
-	 * @param historyFilename the historyFilename to set
-	 */
-	public void setHistoryFilename(String historyFilename) {
-		this.historyFilename = historyFilename;
 	}
 	
 	/**

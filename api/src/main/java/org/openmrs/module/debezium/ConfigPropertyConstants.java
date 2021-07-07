@@ -26,10 +26,6 @@ public class ConfigPropertyConstants {
 	
 	protected static final String CONNECTOR_PROP_DB_PASSWORD = "database.password";
 	
-	protected static final String CONNECTOR_PROP_HISTORY_CLASS = "database.history";
-	
-	protected static final String CONNECTOR_PROP_HISTORY_FILE = "database.history.file.filename";
-	
 	protected static final String CONNECTOR_PROP_SNAPSHOT_MODE = "snapshot.mode";
 	
 	protected static final String CONNECTOR_PROP_TABLES_INCLUDE_LIST = "table.include.list";
