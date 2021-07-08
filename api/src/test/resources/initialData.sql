@@ -15,3 +15,5 @@ CREATE TABLE encounter_type (
     name varchar(255) NOT NULL,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB;
+
+INSERT INTO location(name) VALUES('Demo');

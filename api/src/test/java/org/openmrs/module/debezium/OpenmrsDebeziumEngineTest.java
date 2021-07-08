@@ -1,6 +1,11 @@
 package org.openmrs.module.debezium;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collections;
 import java.util.stream.Stream;
 
 import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
@@ -25,11 +30,18 @@ public class OpenmrsDebeziumEngineTest {
 	
 	private static final String PASSWORD = "test";
 	
+	private static final String DB_NAME = "openmrs";
+	
 	protected static MySQLContainer mysqlContainer = new MySQLContainer(DockerImageName.parse("mysql:5.6"));
 	
 	protected static Integer MYSQL_PORT;
 	
 	private OpenmrsDebeziumEngine engine;
+	
+	private Connection getConnection() throws SQLException {
+		return DriverManager.getConnection(mysqlContainer.getJdbcUrl(), mysqlContainer.getUsername(),
+		    mysqlContainer.getPassword());
+	}
 	
 	@BeforeClass
 	public static void beforeDebeziumTestClass() throws Exception {
@@ -38,7 +50,7 @@ public class OpenmrsDebeziumEngineTest {
 		mysqlContainer.withCopyFileToContainer(MountableFile.forClasspathResource("initialData.sql"),
 		    "/docker-entrypoint-initdb.d/initialData.sql");
 		mysqlContainer.withEnv("MYSQL_ROOT_PASSWORD", PASSWORD);
-		mysqlContainer.withDatabaseName("openmrs");
+		mysqlContainer.withDatabaseName(DB_NAME);
 		Startables.deepStart(Stream.of(mysqlContainer)).join();
 		MYSQL_PORT = mysqlContainer.getMappedPort(3306);
 	}
@@ -52,8 +64,10 @@ public class OpenmrsDebeziumEngineTest {
 		config.setHistoryClass(MemoryDatabaseHistory.class);
 		config.setHost(mysqlContainer.getHost());
 		config.setPort(MYSQL_PORT);
+		config.setDatabaseName(DB_NAME);
 		config.setUsername("root");
 		config.setPassword(PASSWORD);
+		config.setTablesToInclude(Collections.singleton("location"));
 		engine.start(config);
 	}
 	
@@ -71,7 +85,26 @@ public class OpenmrsDebeziumEngineTest {
 	
 	@Test
 	public void shouldProcessAnInsert() throws Exception {
-		//Thread.sleep(30000);
+		try (Connection c = getConnection(); Statement s = c.createStatement()) {
+			System.out.println("\n\nInserting==============");
+			s.executeUpdate("INSERT INTO location(name) VALUES('Test')");
+		}
+	}
+	
+	@Test
+	public void shouldProcessAnUpdate() throws Exception {
+		try (Connection c = getConnection(); Statement s = c.createStatement()) {
+			System.out.println("\n\nUpdating==============");
+			s.executeUpdate("UPDATE location SET name = 'New name'");
+		}
+	}
+	
+	@Test
+	public void shouldProcessADelete() throws Exception {
+		try (Connection c = getConnection(); Statement s = c.createStatement()) {
+			System.out.println("\n\nDeleting==============");
+			s.executeUpdate("DELETE FROM location WHERE name = 'Demo'");
+		}
 	}
 	
 }

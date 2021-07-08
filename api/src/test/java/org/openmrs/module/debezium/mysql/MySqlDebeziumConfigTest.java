@@ -1,55 +1,45 @@
 package org.openmrs.module.debezium.mysql;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.openmrs.module.debezium.mysql.MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_EXCLUDE_LIST;
+import static org.openmrs.module.debezium.mysql.MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_INCLUDE_LIST;
 
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.junit.After;
 import org.junit.Test;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.debezium.BaseDebeziumConfigTest;
-import org.openmrs.module.debezium.DebeziumConstants;
 
 import io.debezium.relational.history.FileDatabaseHistory;
 
 public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 	
-	private final String historyFilename = "./history.txt";
+	private static final String HISTORY_FILE = "./history.txt";
 	
-	private final String tablesToInclude = "location,person";
+	private static final String TABLE_LOCATION = "location";
 	
-	private final String tablesToExclude = "encounter_type,person";
+	private static final String TABLE_PERSON = "person";
 	
-	private static Properties originalProps;
+	private static final String TABLE_ENC_TYPE = "encounter_type";
 	
-	final String database = "testDb";
+	private static final String tablesToInclude = TABLE_LOCATION + "," + TABLE_PERSON;
 	
-	final String url = "jdbc:mysql://" + host + ":" + port + "/" + database
-	        + "?autoReconnect=true&sessionVariables=storage_engine";
+	private static final String tablesToExclude = TABLE_ENC_TYPE + "," + TABLE_PERSON;
 	
-	@After
-	public void tearDown() {
-		if (originalProps != null) {
-			originalProps = Context.getRuntimeProperties();
-		}
-	}
+	private final String database = "testDb";
 	
 	@Test
 	public void getProperties_shouldReturnTheMySqlProperties() {
-		Properties testProps = new Properties();
-		testProps.setProperty(DebeziumConstants.DB_URL_PROP, url);
-		testProps.setProperty(DebeziumConstants.DB_USERNAME_PROP, username);
-		testProps.setProperty(DebeziumConstants.DB_PASSWORD_PROP, password);
-		Context.setRuntimeProperties(testProps);
 		MySqlDebeziumConfig config = new MySqlDebeziumConfig();
 		setCoreProperties(config);
+		config.setDatabaseName(database);
 		config.setSnapshotLockMode(MySqlSnapshotLockMode.EXTENDED);
 		config.setSslMode(MySqlSslMode.DISABLED);
 		config.setIncludeSchemaChanges(true);
 		config.setHistoryClass(FileDatabaseHistory.class);
-		config.setHistoryFilename(historyFilename);
+		config.setHistoryFilename(HISTORY_FILE);
 		config.setTablesToInclude(Arrays.stream(tablesToInclude.split(",")).collect(Collectors.toSet()));
 		
 		Properties props = config.getProperties();
@@ -58,26 +48,27 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 		assertEquals(database, props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_INCLUDE_LIST));
 		assertEquals(MySqlSnapshotLockMode.EXTENDED.getPropertyValue(),
 		    props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SNAPSHOT_LOCKING_MODE));
-		assertEquals("true", props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES));
 		assertEquals(MySqlSslMode.DISABLED.getPropertyValue(),
 		    props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SSL_MODE));
-		assertEquals(tablesToExclude, props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_INCLUDE_LIST));
+		assertEquals("true", props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES));
 		assertEquals(FileDatabaseHistory.class.getName(),
 		    props.get(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_CLASS));
-		assertEquals(historyFilename, props.get(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE));
+		assertEquals(HISTORY_FILE, props.get(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE));
+		assertEquals(2, props.getProperty(CONNECTOR_PROP_TABLE_INCLUDE_LIST).split(",").length);
+		assertTrue(props.getProperty(CONNECTOR_PROP_TABLE_INCLUDE_LIST).contains(TABLE_LOCATION));
+		assertTrue(props.getProperty(CONNECTOR_PROP_TABLE_INCLUDE_LIST).contains(TABLE_PERSON));
 	}
 	
 	@Test
 	public void getProperties_shouldReturnTheMySqlPropertiesWithTablesToExclude() {
-		Properties testProps = new Properties();
-		testProps.setProperty(DebeziumConstants.DB_URL_PROP, url);
-		testProps.setProperty(DebeziumConstants.DB_USERNAME_PROP, username);
-		testProps.setProperty(DebeziumConstants.DB_PASSWORD_PROP, password);
 		MySqlDebeziumConfig config = new MySqlDebeziumConfig();
 		setCoreProperties(config);
+		config.setDatabaseName(database);
 		config.setSnapshotLockMode(MySqlSnapshotLockMode.EXTENDED);
 		config.setSslMode(MySqlSslMode.DISABLED);
 		config.setIncludeSchemaChanges(true);
+		config.setHistoryClass(FileDatabaseHistory.class);
+		config.setHistoryFilename(HISTORY_FILE);
 		config.setTablesToExclude(Arrays.stream(tablesToExclude.split(",")).collect(Collectors.toSet()));
 		
 		Properties props = config.getProperties();
@@ -86,13 +77,15 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 		assertEquals(database, props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_INCLUDE_LIST));
 		assertEquals(MySqlSnapshotLockMode.EXTENDED.getPropertyValue(),
 		    props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SNAPSHOT_LOCKING_MODE));
-		assertEquals("true", props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES));
 		assertEquals(MySqlSslMode.DISABLED.getPropertyValue(),
 		    props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SSL_MODE));
-		assertEquals(tablesToExclude, props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_INCLUDE_LIST));
+		assertEquals("true", props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES));
 		assertEquals(FileDatabaseHistory.class.getName(),
 		    props.get(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_CLASS));
-		assertEquals(historyFilename, props.get(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE));
+		assertEquals(HISTORY_FILE, props.get(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE));
+		assertEquals(2, props.getProperty(CONNECTOR_PROP_TABLE_EXCLUDE_LIST).split(",").length);
+		assertTrue(props.getProperty(CONNECTOR_PROP_TABLE_EXCLUDE_LIST).contains(TABLE_ENC_TYPE));
+		assertTrue(props.getProperty(CONNECTOR_PROP_TABLE_EXCLUDE_LIST).contains(TABLE_PERSON));
 	}
 	
 }

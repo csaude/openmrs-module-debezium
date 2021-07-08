@@ -2,6 +2,7 @@ package org.openmrs.module.debezium.mysql;
 
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.openmrs.module.debezium.BaseDebeziumConfig;
 
@@ -30,6 +31,7 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig {
 	@Override
 	public Properties getProperties() {
 		Properties props = super.getProperties();
+		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_INCLUDE_LIST, getDatabaseName());
 		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SNAPSHOT_LOCKING_MODE,
 		    getSnapshotLockMode().getPropertyValue());
 		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SSL_MODE, getSslMode().getPropertyValue());
@@ -39,16 +41,15 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig {
 		if (FileDatabaseHistory.class.equals(getHistoryClass())) {
 			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE, getHistoryFilename());
 		}
-		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_INCLUDE_LIST, "");
 		
 		if (getTablesToInclude() != null) {
-			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_INCLUDE_LIST,
-			    String.join(",", getTablesToInclude()));
+			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_INCLUDE_LIST, String.join(",",
+			    getTablesToInclude().stream().map(t -> getDatabaseName() + "." + t).collect(Collectors.toSet())));
 		}
 		
 		if (getTablesToExclude() != null) {
-			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_EXCLUDE_LIST,
-			    String.join(",", getTablesToExclude()));
+			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_EXCLUDE_LIST, String.join(",",
+			    getTablesToExclude().stream().map(t -> getDatabaseName() + "." + t).collect(Collectors.toSet())));
 		}
 		
 		return props;

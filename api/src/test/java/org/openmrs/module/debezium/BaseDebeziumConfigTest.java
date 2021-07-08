@@ -12,16 +12,16 @@ import io.debezium.connector.mysql.MySqlConnector;
 public abstract class BaseDebeziumConfigTest {
 	
 	protected final String storageFilename = "./offset.txt";
-
-    protected final String host = "localhost";
-
-    protected final Integer port = 3306;
-
-    protected final String username = "root";
-
-    protected final String password = "test";
-
-    protected final MySqlSnapshotMode snapshotMode = MySqlSnapshotMode.SCHEMA_ONLY;
+	
+	protected final String host = "localhost";
+	
+	protected final Integer port = 3306;
+	
+	protected final String username = "root";
+	
+	protected final String password = "test";
+	
+	protected final MySqlSnapshotMode snapshotMode = MySqlSnapshotMode.SCHEMA_ONLY;
 	
 	protected void setCoreProperties(BaseDebeziumConfig config) {
 		config.setConnectorClass(MySqlConnector.class);
