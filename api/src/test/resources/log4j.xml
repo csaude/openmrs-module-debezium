@@ -10,11 +10,19 @@
                    value="%p - %C{1}.%M(%L) |%d{ISO8601}| %m%n" />
         </layout>
     </appender>
-    <!--
+
     <logger name="org.openmrs.module.debezium">
         <level value="DEBUG" />
     </logger>
 
+    <logger name="org.apache.kafka">
+        <level value="WARN" />
+    </logger>
+
+    <logger name="org.apache.kafka.common.config.AbstractConfig">
+        <level value="WARN" />
+    </logger>
+    <!--
     <logger name="io.debezium">
         <level value="DEBUG" />
     </logger>

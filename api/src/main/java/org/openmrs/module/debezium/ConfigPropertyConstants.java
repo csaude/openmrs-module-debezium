@@ -18,6 +18,8 @@ public class ConfigPropertyConstants {
 	
 	protected static final String ENGINE_PROP_OFF_SET_FLUSH_INTERVAL_MS = "offset.flush.interval.ms";
 	
+	protected static final String ENGINE_PROP_OFF_SET_FLUSH_TIMEOUT_MS = "offset.flush.timeout.ms";
+	
 	protected static final String CONNECTOR_PROP_DB_HOST = "database.hostname";
 	
 	protected static final String CONNECTOR_PROP_DB_PORT = "database.port";

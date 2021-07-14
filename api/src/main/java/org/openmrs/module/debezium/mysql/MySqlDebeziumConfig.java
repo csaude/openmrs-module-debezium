@@ -37,6 +37,7 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig {
 		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SSL_MODE, getSslMode().getPropertyValue());
 		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES,
 		    isIncludeSchemaChanges().toString());
+		//props.setProperty("max.batch.size", "1");
 		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_CLASS, getHistoryClass().getName());
 		if (FileDatabaseHistory.class.equals(getHistoryClass())) {
 			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE, getHistoryFilename());
