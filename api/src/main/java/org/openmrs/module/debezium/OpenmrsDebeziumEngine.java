@@ -47,9 +47,10 @@ final public class OpenmrsDebeziumEngine {
 		
 		log.info("Starting OpenMRS debezium engine...");
 		
-		debeziumEngine = DebeziumEngine.create(Json.class).using(config.getProperties()).notifying(record -> {
-			System.out.println("\n\nReceived DB event -> " + record);
-		}).build();
+		debeziumEngine = DebeziumEngine.create(Json.class).using(config.getProperties()).using(config.getCallback())
+		        .notifying(record -> {
+			        System.out.println("\n\nReceived DB event -> " + record);
+		        }).build();
 		
 		// Run the engine asynchronously ...
 		//TODO Possibly set the thread pool size and add a global property for it configurable

@@ -8,6 +8,7 @@ import org.apache.kafka.connect.storage.OffsetBackingStore;
 import org.openmrs.module.debezium.mysql.MySqlSnapshotMode;
 
 import io.debezium.connector.mysql.MySqlConnector;
+import io.debezium.engine.DebeziumEngine.ConnectorCallback;
 
 /**
  * Base class for debezium configuration classes
@@ -33,6 +34,8 @@ public abstract class BaseDebeziumConfig {
 	private String databaseName;
 	
 	private SnapshotMode snapshotMode = MySqlSnapshotMode.INITIAL;
+	
+	private ConnectorCallback callback;
 	
 	/**
 	 * Returns a {@link Properties} instance with the keys as the actual debezium property names and the
@@ -225,4 +228,23 @@ public abstract class BaseDebeziumConfig {
 	public void setSnapshotMode(SnapshotMode snapshotMode) {
 		this.snapshotMode = snapshotMode;
 	}
+	
+	/**
+	 * Gets the callback
+	 *
+	 * @return the callback
+	 */
+	public ConnectorCallback getCallback() {
+		return callback;
+	}
+	
+	/**
+	 * Sets the callback
+	 *
+	 * @param callback the callback to set
+	 */
+	public void setCallback(ConnectorCallback callback) {
+		this.callback = callback;
+	}
+	
 }

@@ -6,6 +6,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
@@ -22,6 +24,7 @@ import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
+import io.debezium.engine.DebeziumEngine.ConnectorCallback;
 import io.debezium.relational.history.MemoryDatabaseHistory;
 
 public class OpenmrsDebeziumEngineTest {
@@ -37,6 +40,27 @@ public class OpenmrsDebeziumEngineTest {
 	protected static Integer MYSQL_PORT;
 	
 	private OpenmrsDebeziumEngine engine;
+	
+	public class TestCallback implements ConnectorCallback {
+		
+		private CountDownLatch latch;
+		
+		TestCallback(CountDownLatch latch) {
+			this.latch = latch;
+		}
+		
+		@Override
+		public void connectorStarted() {
+			log.info("Connector Started...");
+		}
+		
+		@Override
+		public void taskStarted() {
+			log.info("Connector Task Started...");
+			latch.countDown();
+		}
+		
+	}
 	
 	private Connection getConnection() throws SQLException {
 		return DriverManager.getConnection(mysqlContainer.getJdbcUrl(), mysqlContainer.getUsername(),
@@ -68,7 +92,10 @@ public class OpenmrsDebeziumEngineTest {
 		config.setUsername("root");
 		config.setPassword(PASSWORD);
 		config.setTablesToInclude(Collections.singleton("location"));
+		CountDownLatch latch = new CountDownLatch(1);
+		config.setCallback(new TestCallback(latch));
 		engine.start(config);
+		latch.await(10000, TimeUnit.SECONDS);
 	}
 	
 	@After
@@ -86,7 +113,7 @@ public class OpenmrsDebeziumEngineTest {
 	@Test
 	public void shouldProcessAnInsert() throws Exception {
 		try (Connection c = getConnection(); Statement s = c.createStatement()) {
-			System.out.println("\n\nInserting==============");
+			System.out.println("Inserting==============");
 			s.executeUpdate("INSERT INTO location(name) VALUES('Test')");
 		}
 	}
@@ -94,7 +121,7 @@ public class OpenmrsDebeziumEngineTest {
 	@Test
 	public void shouldProcessAnUpdate() throws Exception {
 		try (Connection c = getConnection(); Statement s = c.createStatement()) {
-			System.out.println("\n\nUpdating==============");
+			System.out.println("Updating==============");
 			s.executeUpdate("UPDATE location SET name = 'New name'");
 		}
 	}
@@ -102,7 +129,7 @@ public class OpenmrsDebeziumEngineTest {
 	@Test
 	public void shouldProcessADelete() throws Exception {
 		try (Connection c = getConnection(); Statement s = c.createStatement()) {
-			System.out.println("\n\nDeleting==============");
+			System.out.println("Deleting==============");
 			s.executeUpdate("DELETE FROM location WHERE name = 'Demo'");
 		}
 	}
