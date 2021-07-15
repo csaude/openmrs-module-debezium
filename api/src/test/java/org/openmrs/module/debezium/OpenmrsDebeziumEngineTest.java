@@ -1,5 +1,7 @@
 package org.openmrs.module.debezium;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,11 +10,13 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -24,7 +28,7 @@ import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
-import io.debezium.engine.DebeziumEngine.ConnectorCallback;
+import io.debezium.engine.ChangeEvent;
 import io.debezium.relational.history.MemoryDatabaseHistory;
 
 public class OpenmrsDebeziumEngineTest {
@@ -41,23 +45,27 @@ public class OpenmrsDebeziumEngineTest {
 	
 	private OpenmrsDebeziumEngine engine;
 	
-	public class TestCallback implements ConnectorCallback {
+	private CountDownLatch firstEventLatch;
+	
+	private CountDownLatch eventsLatch;
+	
+	private TestDebeziumChangeConsumer consumer;
+	
+	public class TestDebeziumChangeConsumer implements Consumer<ChangeEvent<String, String>> {
 		
-		private CountDownLatch latch;
-		
-		TestCallback(CountDownLatch latch) {
-			this.latch = latch;
-		}
-		
-		@Override
-		public void connectorStarted() {
-			log.info("Connector Started...");
-		}
+		private int eventCount = 0;
 		
 		@Override
-		public void taskStarted() {
-			log.info("Connector Task Started...");
-			latch.countDown();
+		public void accept(ChangeEvent<String, String> changeEvent) {
+			log.info("Received database change -> " + changeEvent);
+			if (firstEventLatch.getCount() > 0) {
+				log.info("Ignoring first database change");
+				firstEventLatch.countDown();
+			} else {
+				eventCount++;
+				eventsLatch.countDown();
+			}
+			
 		}
 		
 	}
@@ -69,7 +77,7 @@ public class OpenmrsDebeziumEngineTest {
 	
 	@BeforeClass
 	public static void beforeDebeziumTestClass() throws Exception {
-		log.info("\n\nStarting MySQL container");
+		log.info("Starting MySQL container");
 		mysqlContainer.withCopyFileToContainer(MountableFile.forClasspathResource("my.cnf"), "/etc/mysql/my.cnf");
 		mysqlContainer.withCopyFileToContainer(MountableFile.forClasspathResource("initialData.sql"),
 		    "/docker-entrypoint-initdb.d/initialData.sql");
@@ -81,7 +89,7 @@ public class OpenmrsDebeziumEngineTest {
 	
 	@Before
 	public void beforeDebeziumTest() throws Exception {
-		log.info("\n\nStarting OpenMRS test debezium engine");
+		log.info("Starting OpenMRS test debezium engine");
 		engine = OpenmrsDebeziumEngine.getInstance();
 		MySqlDebeziumConfig config = new MySqlDebeziumConfig();
 		config.setOffsetStorageClass(MemoryOffsetBackingStore.class);
@@ -92,46 +100,68 @@ public class OpenmrsDebeziumEngineTest {
 		config.setUsername("root");
 		config.setPassword(PASSWORD);
 		config.setTablesToInclude(Collections.singleton("location"));
-		CountDownLatch latch = new CountDownLatch(1);
-		config.setCallback(new TestCallback(latch));
+		consumer = new TestDebeziumChangeConsumer();
+		config.setConsumer(consumer);
 		engine.start(config);
-		latch.await(10000, TimeUnit.SECONDS);
+		firstEventLatch = new CountDownLatch(1);
+		firstEventLatch.await(60, TimeUnit.SECONDS);
+		if (firstEventLatch.getCount() > 0) {
+			Assert.fail("Expected First event not received");
+		}
 	}
 	
 	@After
 	public void afterDebeziumTest() throws IOException {
-		log.info("\n\nStopping OpenMRS test debezium engine");
+		log.info("Stopping OpenMRS test debezium engine");
 		engine.stop();
+	}
+	
+	private void waitForEvents() throws InterruptedException {
+		log.info("Waiting for events...");
+		eventsLatch.await(30, TimeUnit.SECONDS);
 	}
 	
 	@AfterClass
 	public static void afterDebeziumTestClass() {
-		log.info("\n\nStopping MySQL container");
+		log.info("Stopping MySQL container");
 		mysqlContainer.close();
 	}
 	
-	@Test
+	//@Test
 	public void shouldProcessAnInsert() throws Exception {
+		final int expectedCount = 2;
+		eventsLatch = new CountDownLatch(expectedCount);
 		try (Connection c = getConnection(); Statement s = c.createStatement()) {
-			System.out.println("Inserting==============");
-			s.executeUpdate("INSERT INTO location(name) VALUES('Test')");
+			log.info("Inserting " + expectedCount + " row(s)");
+			s.executeUpdate("INSERT INTO location(name) VALUES('Test 1')");
+			s.executeUpdate("INSERT INTO location(name) VALUES('Test 2')");
 		}
+		waitForEvents();
+		assertEquals(expectedCount, consumer.eventCount);
 	}
 	
 	@Test
 	public void shouldProcessAnUpdate() throws Exception {
+		final int expectedCount = 1;
+		eventsLatch = new CountDownLatch(expectedCount);
 		try (Connection c = getConnection(); Statement s = c.createStatement()) {
-			System.out.println("Updating==============");
+			log.info("Updating row");
 			s.executeUpdate("UPDATE location SET name = 'New name'");
 		}
+		waitForEvents();
+		assertEquals(expectedCount, consumer.eventCount);
 	}
 	
 	@Test
 	public void shouldProcessADelete() throws Exception {
+		final int expectedCount = 1;
+		eventsLatch = new CountDownLatch(expectedCount);
 		try (Connection c = getConnection(); Statement s = c.createStatement()) {
-			System.out.println("Deleting==============");
+			log.info("Deleting row");
 			s.executeUpdate("DELETE FROM location WHERE name = 'Demo'");
 		}
+		waitForEvents();
+		assertEquals(expectedCount, consumer.eventCount);
 	}
 	
 }

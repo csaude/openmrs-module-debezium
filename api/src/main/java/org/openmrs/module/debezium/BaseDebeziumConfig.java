@@ -1,6 +1,7 @@
 package org.openmrs.module.debezium;
 
 import java.util.Properties;
+import java.util.function.Consumer;
 
 import org.apache.kafka.connect.source.SourceConnector;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
@@ -34,6 +35,8 @@ public abstract class BaseDebeziumConfig {
 	private String databaseName;
 	
 	private SnapshotMode snapshotMode = MySqlSnapshotMode.INITIAL;
+	
+	private Consumer consumer;
 	
 	private ConnectorCallback callback;
 	
@@ -227,6 +230,24 @@ public abstract class BaseDebeziumConfig {
 	 */
 	public void setSnapshotMode(SnapshotMode snapshotMode) {
 		this.snapshotMode = snapshotMode;
+	}
+	
+	/**
+	 * Gets the consumer
+	 *
+	 * @return the consumer
+	 */
+	public Consumer getConsumer() {
+		return consumer;
+	}
+	
+	/**
+	 * Sets the consumer
+	 *
+	 * @param consumer the consumer to set
+	 */
+	public void setConsumer(Consumer consumer) {
+		this.consumer = consumer;
 	}
 	
 	/**

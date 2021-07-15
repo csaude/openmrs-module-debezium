@@ -3,13 +3,14 @@ package org.openmrs.module.debezium;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.debezium.embedded.Connect;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
-import io.debezium.engine.format.Json;
 
 /**
  * Wrapper class around a {@link io.debezium.engine.DebeziumEngine} that watches for events in an
@@ -19,7 +20,9 @@ final public class OpenmrsDebeziumEngine {
 	
 	private static final Logger log = LoggerFactory.getLogger(OpenmrsDebeziumEngine.class);
 	
-	private static DebeziumEngine<ChangeEvent<String, String>> debeziumEngine = null;
+	private static DebeziumEngine<ChangeEvent<String, String>> debeziumEngine;
+	
+	private static ExecutorService executor;
 	
 	private OpenmrsDebeziumEngine() {
 	}
@@ -47,26 +50,45 @@ final public class OpenmrsDebeziumEngine {
 		
 		log.info("Starting OpenMRS debezium engine...");
 		
-		debeziumEngine = DebeziumEngine.create(Json.class).using(config.getProperties()).using(config.getCallback())
-		        .notifying(record -> {
-			        System.out.println("\n\nReceived DB event -> " + record);
-		        }).build();
+		debeziumEngine = DebeziumEngine.create(Connect.class).using(config.getProperties()).using(config.getCallback())
+		        .notifying(config.getConsumer()).build();
 		
 		// Run the engine asynchronously ...
 		//TODO Possibly set the thread pool size and add a global property for it configurable
-		ExecutorService executor = Executors.newCachedThreadPool();
+		executor = Executors.newCachedThreadPool();
 		executor.execute(debeziumEngine);
 	}
 	
 	/**
 	 * Stops the debezium engine
 	 */
-	protected synchronized void stop() throws IOException {
+	protected synchronized void stop() {
 		if (debeziumEngine != null) {
-			log.info("Stopping OpenMRS debezium engine...");
+			log.info("Closing OpenMRS debezium engine...");
 			
-			debeziumEngine.close();
-			debeziumEngine = null;
+			try {
+				debeziumEngine.close();
+			}
+			catch (IOException e) {
+				log.warn("An error occurred while closing the debezium engine", e);
+			}
+			finally {
+				debeziumEngine = null;
+			}
+		}
+		
+		if (executor != null) {
+			log.info("Waiting another 5 seconds for the embedded engine to shut down");
+			
+			try {
+				executor.awaitTermination(5, TimeUnit.SECONDS);
+			}
+			catch (InterruptedException e) {
+				log.warn("Interrupt occurred while waiting for the debezium engine to shut down", e);
+			}
+			finally {
+				executor = null;
+			}
 		}
 	}
 	
