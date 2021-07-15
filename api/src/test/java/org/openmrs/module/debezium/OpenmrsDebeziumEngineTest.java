@@ -2,7 +2,6 @@ package org.openmrs.module.debezium;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -16,10 +15,8 @@ import java.util.stream.Stream;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openmrs.module.debezium.mysql.MySqlDebeziumConfig;
 import org.slf4j.Logger;
@@ -76,8 +73,13 @@ public class OpenmrsDebeziumEngineTest {
 		    mysqlContainer.getPassword());
 	}
 	
-	@BeforeClass
-	public static void beforeDebeziumTestClass() throws Exception {
+	@Before
+	public void setup() throws Exception {
+		startMySql();
+		startEngine();
+	}
+	
+	private void startMySql() throws Exception {
 		log.info("Starting MySQL container");
 		mysqlContainer.withCopyFileToContainer(MountableFile.forClasspathResource("my.cnf"), "/etc/mysql/my.cnf");
 		mysqlContainer.withCopyFileToContainer(MountableFile.forClasspathResource("initialData.sql"),
@@ -88,8 +90,7 @@ public class OpenmrsDebeziumEngineTest {
 		MYSQL_PORT = mysqlContainer.getMappedPort(3306);
 	}
 	
-	@Before
-	public void beforeDebeziumTest() throws Exception {
+	private void startEngine() throws Exception {
 		log.info("Starting OpenMRS test debezium engine");
 		engine = OpenmrsDebeziumEngine.getInstance();
 		MySqlDebeziumConfig config = new MySqlDebeziumConfig();
@@ -112,20 +113,17 @@ public class OpenmrsDebeziumEngineTest {
 	}
 	
 	@After
-	public void afterDebeziumTest() throws IOException {
+	public void tearDown() {
 		log.info("Stopping OpenMRS test debezium engine");
 		engine.stop();
+		log.info("Stopping MySQL container");
+		mysqlContainer.stop();
+		mysqlContainer.close();
 	}
 	
 	private void waitForEvents() throws InterruptedException {
 		log.info("Waiting for events...");
 		eventsLatch.await(30, TimeUnit.SECONDS);
-	}
-	
-	@AfterClass
-	public static void afterDebeziumTestClass() {
-		log.info("Stopping MySQL container");
-		mysqlContainer.close();
 	}
 	
 	@Test
