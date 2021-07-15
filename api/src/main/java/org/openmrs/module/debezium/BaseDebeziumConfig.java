@@ -4,12 +4,13 @@ import java.util.Properties;
 import java.util.function.Consumer;
 
 import org.apache.kafka.connect.source.SourceConnector;
+import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.apache.kafka.connect.storage.OffsetBackingStore;
 import org.openmrs.module.debezium.mysql.MySqlSnapshotMode;
 
 import io.debezium.connector.mysql.MySqlConnector;
-import io.debezium.engine.DebeziumEngine.ConnectorCallback;
+import io.debezium.engine.ChangeEvent;
 
 /**
  * Base class for debezium configuration classes
@@ -36,9 +37,7 @@ public abstract class BaseDebeziumConfig {
 	
 	private SnapshotMode snapshotMode = MySqlSnapshotMode.INITIAL;
 	
-	private Consumer consumer;
-	
-	private ConnectorCallback callback;
+	private Consumer<ChangeEvent<SourceRecord, SourceRecord>> consumer;
 	
 	/**
 	 * Returns a {@link Properties} instance with the keys as the actual debezium property names and the
@@ -237,7 +236,7 @@ public abstract class BaseDebeziumConfig {
 	 *
 	 * @return the consumer
 	 */
-	public Consumer getConsumer() {
+	public Consumer<ChangeEvent<SourceRecord, SourceRecord>> getConsumer() {
 		return consumer;
 	}
 	
@@ -246,26 +245,7 @@ public abstract class BaseDebeziumConfig {
 	 *
 	 * @param consumer the consumer to set
 	 */
-	public void setConsumer(Consumer consumer) {
+	public void setConsumer(Consumer<ChangeEvent<SourceRecord, SourceRecord>> consumer) {
 		this.consumer = consumer;
 	}
-	
-	/**
-	 * Gets the callback
-	 *
-	 * @return the callback
-	 */
-	public ConnectorCallback getCallback() {
-		return callback;
-	}
-	
-	/**
-	 * Sets the callback
-	 *
-	 * @param callback the callback to set
-	 */
-	public void setCallback(ConnectorCallback callback) {
-		this.callback = callback;
-	}
-	
 }

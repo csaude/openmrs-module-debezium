@@ -2,6 +2,7 @@ package org.openmrs.module.debezium;
 
 import java.util.function.Consumer;
 
+import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import io.debezium.engine.ChangeEvent;
  * registered listeners using the spring events API.
  */
 @Component
-public class DebeziumChangeConsumer implements Consumer<ChangeEvent<String, String>> {
+public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord, SourceRecord>> {
 	
 	private static final Logger log = LoggerFactory.getLogger(DebeziumChangeConsumer.class);
 	
@@ -23,7 +24,7 @@ public class DebeziumChangeConsumer implements Consumer<ChangeEvent<String, Stri
 	private ApplicationEventPublisher publisher;
 	
 	@Override
-	public void accept(ChangeEvent<String, String> changeEvent) {
+	public void accept(ChangeEvent<SourceRecord, SourceRecord> changeEvent) {
 		if (log.isDebugEnabled()) {
 			log.debug("Received database change -> " + changeEvent);
 		}

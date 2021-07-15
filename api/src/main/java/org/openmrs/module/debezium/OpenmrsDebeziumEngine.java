@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ final public class OpenmrsDebeziumEngine {
 	
 	private static final Logger log = LoggerFactory.getLogger(OpenmrsDebeziumEngine.class);
 	
-	private static DebeziumEngine<ChangeEvent<String, String>> debeziumEngine;
+	private static DebeziumEngine<ChangeEvent<SourceRecord, SourceRecord>> debeziumEngine;
 	
 	private static ExecutorService executor;
 	
@@ -50,8 +51,8 @@ final public class OpenmrsDebeziumEngine {
 		
 		log.info("Starting OpenMRS debezium engine...");
 		
-		debeziumEngine = DebeziumEngine.create(Connect.class).using(config.getProperties()).using(config.getCallback())
-		        .notifying(config.getConsumer()).build();
+		debeziumEngine = DebeziumEngine.create(Connect.class).using(config.getProperties()).notifying(config.getConsumer())
+		        .build();
 		
 		// Run the engine asynchronously ...
 		//TODO Possibly set the thread pool size and add a global property for it configurable

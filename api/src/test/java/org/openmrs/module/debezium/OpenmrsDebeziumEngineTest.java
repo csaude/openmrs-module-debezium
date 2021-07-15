@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -51,12 +52,12 @@ public class OpenmrsDebeziumEngineTest {
 	
 	private TestDebeziumChangeConsumer consumer;
 	
-	public class TestDebeziumChangeConsumer implements Consumer<ChangeEvent<String, String>> {
+	public class TestDebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord, SourceRecord>> {
 		
 		private int eventCount = 0;
 		
 		@Override
-		public void accept(ChangeEvent<String, String> changeEvent) {
+		public void accept(ChangeEvent<SourceRecord, SourceRecord> changeEvent) {
 			log.info("Received database change -> " + changeEvent);
 			if (firstEventLatch.getCount() > 0) {
 				log.info("Ignoring first database change");
@@ -127,7 +128,7 @@ public class OpenmrsDebeziumEngineTest {
 		mysqlContainer.close();
 	}
 	
-	//@Test
+	@Test
 	public void shouldProcessAnInsert() throws Exception {
 		final int expectedCount = 2;
 		eventsLatch = new CountDownLatch(expectedCount);
