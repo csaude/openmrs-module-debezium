@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.apache.kafka.connect.source.SourceRecord;
@@ -48,21 +49,11 @@ public class OpenmrsDebeziumEngineTest {
 	
 	private CountDownLatch eventsLatch;
 	
-	private TestDatabaseEventListener listener;
-	
-	public class TestDatabaseEventListener implements DatabaseEventListener {
-		
-		private List<DatabaseEvent> events = new ArrayList();
-		
-		@Override
-		public void process(DatabaseEvent event) {
-			events.add(event);
-		}
-	}
+	private List<DatabaseEvent> events;
 	
 	public class TestDebeziumChangeConsumer extends DebeziumChangeConsumer {
 		
-		public TestDebeziumChangeConsumer(DatabaseEventListener listener) {
+		public TestDebeziumChangeConsumer(Consumer<DatabaseEvent> listener) {
 			super(listener);
 		}
 		
@@ -92,7 +83,7 @@ public class OpenmrsDebeziumEngineTest {
 		startEngine();
 	}
 	
-	private void startMySql() throws Exception {
+	private void startMySql() {
 		log.info("Starting MySQL container");
 		mysqlContainer.withCopyFileToContainer(MountableFile.forClasspathResource("my.cnf"), "/etc/mysql/my.cnf");
 		mysqlContainer.withCopyFileToContainer(MountableFile.forClasspathResource("initialData.sql"),
@@ -115,8 +106,8 @@ public class OpenmrsDebeziumEngineTest {
 		config.setUsername("root");
 		config.setPassword(PASSWORD);
 		config.setTablesToInclude(Collections.singleton("location"));
-		listener = new TestDatabaseEventListener();
-		config.setConsumer(new TestDebeziumChangeConsumer(listener));
+		events = new ArrayList();
+		config.setConsumer(new TestDebeziumChangeConsumer(e -> events.add(e)));
 		engine.start(config);
 		firstEventLatch = new CountDownLatch(1);
 		firstEventLatch.await(60, TimeUnit.SECONDS);
@@ -149,7 +140,7 @@ public class OpenmrsDebeziumEngineTest {
 			s.executeUpdate("INSERT INTO location(name) VALUES('Test 2')");
 		}
 		waitForEvents();
-		assertEquals(expectedCount, listener.events.size());
+		assertEquals(expectedCount, events.size());
 	}
 	
 	@Test
@@ -161,7 +152,7 @@ public class OpenmrsDebeziumEngineTest {
 			s.executeUpdate("UPDATE location SET name = 'New name'");
 		}
 		waitForEvents();
-		assertEquals(expectedCount, listener.events.size());
+		assertEquals(expectedCount, events.size());
 	}
 	
 	@Test
@@ -173,7 +164,7 @@ public class OpenmrsDebeziumEngineTest {
 			s.executeUpdate("DELETE FROM location WHERE name = 'Demo'");
 		}
 		waitForEvents();
-		assertEquals(expectedCount, listener.events.size());
+		assertEquals(expectedCount, events.size());
 	}
 	
 }

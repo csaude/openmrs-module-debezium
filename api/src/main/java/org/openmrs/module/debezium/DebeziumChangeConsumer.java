@@ -11,17 +11,17 @@ import io.debezium.DebeziumException;
 import io.debezium.engine.ChangeEvent;
 
 /**
- * Primary event listener for database changes creates DatabaseEvent and publishes it to all
- * registered listeners using the spring events API.
+ * Database ChangeEvent consumer which creates a DatabaseEvent instance from the source record and
+ * publishes it to all registered consumers.
  */
 public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord, SourceRecord>> {
 	
 	private static final Logger log = LoggerFactory.getLogger(DebeziumChangeConsumer.class);
 	
-	private DatabaseEventListener listener;
+	private Consumer<DatabaseEvent> consumer;
 	
-	public DebeziumChangeConsumer(DatabaseEventListener listener) {
-		this.listener = listener;
+	public DebeziumChangeConsumer(Consumer<DatabaseEvent> consumer) {
+		this.consumer = consumer;
 	}
 	
 	@Override
@@ -35,9 +35,11 @@ public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord
 		if (keyStruct.schema().fields().isEmpty()) {
 			throw new DebeziumException("Tables with no primary key column are not supported");
 		}
+		
 		if (keyStruct.schema().fields().size() > 1) {
 			throw new DebeziumException("Tables with composite primary keys are not supproted");
 		}
+		
 		Object primaryKey = keyStruct.get(keyStruct.schema().fields().get(0));
 		Struct payload = (Struct) changeEvent.value().value();
 		DatabaseEvent databaseEvent = new DatabaseEvent(primaryKey, null, null, null, false);
@@ -46,7 +48,7 @@ public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord
 			log.debug("Notifying listener of the database event: " + databaseEvent);
 		}
 		
-		listener.process(databaseEvent);
+		consumer.accept(databaseEvent);
 	}
 	
 }
