@@ -6,10 +6,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.apache.kafka.connect.source.SourceRecord;
@@ -47,20 +48,32 @@ public class OpenmrsDebeziumEngineTest {
 	
 	private CountDownLatch eventsLatch;
 	
-	private TestDebeziumChangeConsumer consumer;
+	private TestDatabaseEventListener listener;
 	
-	public class TestDebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord, SourceRecord>> {
+	public class TestDatabaseEventListener implements DatabaseEventListener {
 		
-		private int eventCount = 0;
+		private List<DatabaseEvent> events = new ArrayList();
+		
+		@Override
+		public void process(DatabaseEvent event) {
+			events.add(event);
+		}
+	}
+	
+	public class TestDebeziumChangeConsumer extends DebeziumChangeConsumer {
+		
+		public TestDebeziumChangeConsumer(DatabaseEventListener listener) {
+			super(listener);
+		}
 		
 		@Override
 		public void accept(ChangeEvent<SourceRecord, SourceRecord> changeEvent) {
-			log.info("Received database change -> " + changeEvent);
+			log.info("Test consumer: Received database change -> " + changeEvent);
 			if (firstEventLatch.getCount() > 0) {
 				log.info("Ignoring first database change");
 				firstEventLatch.countDown();
 			} else {
-				eventCount++;
+				super.accept(changeEvent);
 				eventsLatch.countDown();
 			}
 			
@@ -102,8 +115,8 @@ public class OpenmrsDebeziumEngineTest {
 		config.setUsername("root");
 		config.setPassword(PASSWORD);
 		config.setTablesToInclude(Collections.singleton("location"));
-		consumer = new TestDebeziumChangeConsumer();
-		config.setConsumer(consumer);
+		listener = new TestDatabaseEventListener();
+		config.setConsumer(new TestDebeziumChangeConsumer(listener));
 		engine.start(config);
 		firstEventLatch = new CountDownLatch(1);
 		firstEventLatch.await(60, TimeUnit.SECONDS);
@@ -136,7 +149,7 @@ public class OpenmrsDebeziumEngineTest {
 			s.executeUpdate("INSERT INTO location(name) VALUES('Test 2')");
 		}
 		waitForEvents();
-		assertEquals(expectedCount, consumer.eventCount);
+		assertEquals(expectedCount, listener.events.size());
 	}
 	
 	@Test
@@ -148,7 +161,7 @@ public class OpenmrsDebeziumEngineTest {
 			s.executeUpdate("UPDATE location SET name = 'New name'");
 		}
 		waitForEvents();
-		assertEquals(expectedCount, consumer.eventCount);
+		assertEquals(expectedCount, listener.events.size());
 	}
 	
 	@Test
@@ -160,7 +173,7 @@ public class OpenmrsDebeziumEngineTest {
 			s.executeUpdate("DELETE FROM location WHERE name = 'Demo'");
 		}
 		waitForEvents();
-		assertEquals(expectedCount, consumer.eventCount);
+		assertEquals(expectedCount, listener.events.size());
 	}
 	
 }

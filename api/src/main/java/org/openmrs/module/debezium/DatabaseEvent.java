@@ -1,17 +1,15 @@
 package org.openmrs.module.debezium;
 
-import org.springframework.context.ApplicationEvent;
-
 /**
  * An instance of this class encapsulated details about a database change event
  */
-public class DatabaseEvent extends ApplicationEvent {
+public class DatabaseEvent {
 	
 	//Unique identifier for the entity usually a uuid or name for an entity like a privilege that has no uuid
-	private String identifier;
+	private Object identifier;
 	
 	//The primary key value of the affected row
-	private String primaryKeyId;
+	private Object primaryKeyId;
 	
 	private String tableName;
 	
@@ -19,9 +17,8 @@ public class DatabaseEvent extends ApplicationEvent {
 	
 	private boolean snapshot;
 	
-	public DatabaseEvent(Object source, String identifier, String primaryKeyId, String tableName,
-	    DatabaseOperation operation, boolean snapshot) {
-		super(source);
+	public DatabaseEvent(Object identifier, Object primaryKeyId, String tableName, DatabaseOperation operation,
+	    boolean snapshot) {
 		this.identifier = identifier;
 		this.primaryKeyId = primaryKeyId;
 		this.tableName = tableName;
@@ -34,7 +31,7 @@ public class DatabaseEvent extends ApplicationEvent {
 	 *
 	 * @return the identifier
 	 */
-	public String getIdentifier() {
+	public Object getIdentifier() {
 		return identifier;
 	}
 	
@@ -43,7 +40,7 @@ public class DatabaseEvent extends ApplicationEvent {
 	 *
 	 * @return the primaryKeyId
 	 */
-	public String getPrimaryKeyId() {
+	public Object getPrimaryKeyId() {
 		return primaryKeyId;
 	}
 	
