@@ -30,4 +30,6 @@ public class ConfigPropertyConstants {
 	
 	protected static final String CONNECTOR_PROP_SNAPSHOT_MODE = "snapshot.mode";
 	
+	protected static final String CONNECTOR_PROP_TOMBSTONE_ON_DELETE = "tombstones.on.delete";
+	
 }

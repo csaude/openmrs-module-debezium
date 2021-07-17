@@ -45,6 +45,7 @@ public abstract class BaseDebeziumConfigTest {
 		assertEquals(storageFilename, props.get(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_STORAGE_FILE));
 		assertEquals("0", props.get(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_FLUSH_INTERVAL_MS));
 		assertEquals("15000", props.get(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_FLUSH_TIMEOUT_MS));
+		assertEquals("false", props.get(ConfigPropertyConstants.CONNECTOR_PROP_TOMBSTONE_ON_DELETE));
 		assertEquals(host, props.get(ConfigPropertyConstants.CONNECTOR_PROP_DB_HOST));
 		assertEquals(port.toString(), props.get(ConfigPropertyConstants.CONNECTOR_PROP_DB_PORT));
 		assertEquals(username, props.get(ConfigPropertyConstants.CONNECTOR_PROP_DB_USERNAME));

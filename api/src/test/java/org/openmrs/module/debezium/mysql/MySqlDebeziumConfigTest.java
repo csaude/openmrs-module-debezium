@@ -44,7 +44,7 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 		
 		Properties props = config.getProperties();
 		
-		assertCoreProperties(props, 19);
+		assertCoreProperties(props, 20);
 		assertEquals(database, props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_INCLUDE_LIST));
 		assertEquals(MySqlSnapshotLockMode.EXTENDED.getPropertyValue(),
 		    props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SNAPSHOT_LOCKING_MODE));
@@ -73,7 +73,7 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 		
 		Properties props = config.getProperties();
 		
-		assertCoreProperties(props, 19);
+		assertCoreProperties(props, 20);
 		assertEquals(database, props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_INCLUDE_LIST));
 		assertEquals(MySqlSnapshotLockMode.EXTENDED.getPropertyValue(),
 		    props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SNAPSHOT_LOCKING_MODE));

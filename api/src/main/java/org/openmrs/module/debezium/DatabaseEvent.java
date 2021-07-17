@@ -1,12 +1,11 @@
 package org.openmrs.module.debezium;
 
+import java.util.Map;
+
 /**
  * An instance of this class encapsulated details about a database change event
  */
 public class DatabaseEvent {
-	
-	//Unique identifier for the entity usually a uuid or name for an entity like a privilege that has no uuid
-	private Object identifier;
 	
 	//The primary key value of the affected row
 	private Object primaryKeyId;
@@ -15,24 +14,27 @@ public class DatabaseEvent {
 	
 	private DatabaseOperation operation;
 	
-	private boolean snapshot;
+	private Snapshot snapshot;
 	
-	public DatabaseEvent(Object identifier, Object primaryKeyId, String tableName, DatabaseOperation operation,
-	    boolean snapshot) {
-		this.identifier = identifier;
+	private Map<String, Object> previousState;
+	
+	private Map<String, Object> newState;
+	
+	public enum Snapshot {
+		TRUE,
+		FALSE,
+		LAST
+	}
+	
+	public DatabaseEvent(Object primaryKeyId, String tableName, DatabaseOperation operation, Snapshot snapshot,
+	    Map<String, Object> previousState, Map<String, Object> newState) {
+		
 		this.primaryKeyId = primaryKeyId;
 		this.tableName = tableName;
 		this.operation = operation;
 		this.snapshot = snapshot;
-	}
-	
-	/**
-	 * Gets the identifier
-	 *
-	 * @return the identifier
-	 */
-	public Object getIdentifier() {
-		return identifier;
+		this.previousState = previousState;
+		this.newState = newState;
 	}
 	
 	/**
@@ -67,14 +69,32 @@ public class DatabaseEvent {
 	 *
 	 * @return the snapshot
 	 */
-	public boolean getSnapshot() {
+	public Snapshot getSnapshot() {
 		return snapshot;
+	}
+	
+	/**
+	 * Gets the previousState
+	 *
+	 * @return the previousState
+	 */
+	public Map<String, Object> getPreviousState() {
+		return previousState;
+	}
+	
+	/**
+	 * Gets the newState
+	 *
+	 * @return the newState
+	 */
+	public Map<String, Object> getNewState() {
+		return newState;
 	}
 	
 	@Override
 	public String toString() {
-		return "Event {tableName=" + tableName + ", primaryKeyId=" + primaryKeyId + ", identifier=" + identifier
-		        + ", operation=" + operation + ", snapshot=" + snapshot + "}";
+		return "Event {tableName=" + tableName + ", primaryKeyId=" + primaryKeyId + ", operation=" + operation
+		        + ", snapshot=" + snapshot + "}";
 	}
 	
 }
