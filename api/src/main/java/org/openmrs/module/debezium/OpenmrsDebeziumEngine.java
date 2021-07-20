@@ -3,7 +3,6 @@ package org.openmrs.module.debezium;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
@@ -63,33 +62,33 @@ public final class OpenmrsDebeziumEngine {
 	/**
 	 * Stops the debezium engine
 	 */
-	protected synchronized void stop() {
+	public static synchronized void stop() {
 		if (debeziumEngine != null) {
-			log.info("Closing OpenMRS debezium engine...");
-			
-			try {
-				debeziumEngine.close();
-			}
-			catch (IOException e) {
-				log.warn("An error occurred while closing the debezium engine", e);
-			}
-			finally {
-				debeziumEngine = null;
-			}
-		}
-		
-		if (executor != null) {
-			log.info("Waiting another 5 seconds for the embedded engine to shut down");
-			
-			try {
-				executor.awaitTermination(5, TimeUnit.SECONDS);
-			}
-			catch (InterruptedException e) {
-				log.warn("Interrupt occurred while waiting for the debezium engine to shut down", e);
-			}
-			finally {
-				executor = null;
-			}
+			log.info("Starting task to close the debezium engine");
+			//Since this method is called from our ChangeEvent Consumer, we need to stop the engine in a separate thread
+			//so that the consumer's accept method can return and the task ends otherwise the code stopping the engine 
+			//hangs because it would be waiting for itself to complete which would be a deadlock
+			Executors.newSingleThreadExecutor().execute(() -> {
+				try {
+					log.info("Closing debezium engine...");
+					debeziumEngine.close();
+				}
+				catch (IOException e) {
+					log.warn("An error occurred while closing the debezium engine", e);
+				}
+				finally {
+					debeziumEngine = null;
+				}
+				
+				if (executor != null) {
+					try {
+						executor.shutdownNow();
+					}
+					finally {
+						executor = null;
+					}
+				}
+			});
 		}
 	}
 	

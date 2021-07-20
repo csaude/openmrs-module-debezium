@@ -16,6 +16,8 @@ public enum DatabaseOperation {
 	
 	CREATE,
 	
+	READ,
+	
 	UPDATE,
 	
 	DELETE

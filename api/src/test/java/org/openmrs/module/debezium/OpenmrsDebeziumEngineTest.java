@@ -129,15 +129,16 @@ public class OpenmrsDebeziumEngineTest {
 	}
 	
 	@After
-	public void tearDown() {
+	public void tearDown() throws Exception {
 		log.info("Stopping OpenMRS test debezium engine");
 		engine.stop();
+		Thread.sleep(2000);
 		log.info("Stopping MySQL container");
 		mysqlContainer.stop();
 		mysqlContainer.close();
 	}
 	
-	private void waitForEvents() throws InterruptedException {
+	private void waitForEvents() throws Exception {
 		log.info("Waiting for events...");
 		eventsLatch.await(30, TimeUnit.SECONDS);
 	}

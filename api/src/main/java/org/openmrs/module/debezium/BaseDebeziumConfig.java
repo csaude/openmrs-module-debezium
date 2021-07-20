@@ -20,7 +20,7 @@ public abstract class BaseDebeziumConfig {
 	//Engine properties
 	private Class<? extends SourceConnector> connectorClass = MySqlConnector.class;
 	
-	private Class<? extends OffsetBackingStore> offsetStorageClass = FileOffsetBackingStore.class;
+	private Class<? extends OffsetBackingStore> offsetStorageClass = CustomFileOffsetBackingStore.class;
 	
 	private String offsetStorageFilename;
 	
@@ -52,7 +52,7 @@ public abstract class BaseDebeziumConfig {
 		    ConfigPropertyConstants.ENGINE_DEFAULT_DB_SERVER_NAME);
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_CONNECT_CLASS, getConnectorClass().getName());
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_STORAGE_CLASS, getOffsetStorageClass().getName());
-		if (FileOffsetBackingStore.class.equals(getOffsetStorageClass())) {
+		if (FileOffsetBackingStore.class.isAssignableFrom(getOffsetStorageClass())) {
 			props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_STORAGE_FILE, getOffsetStorageFilename());
 		}
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_FLUSH_INTERVAL_MS, "0");
