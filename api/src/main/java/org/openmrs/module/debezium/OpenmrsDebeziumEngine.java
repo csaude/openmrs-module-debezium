@@ -41,7 +41,7 @@ public final class OpenmrsDebeziumEngine {
 	/**
 	 * Starts the debezium engine
 	 */
-	protected synchronized void start(BaseDebeziumConfig config) {
+	public synchronized <T extends BaseDebeziumConfig> void start(T config) {
 		
 		if (debeziumEngine != null) {
 			log.info("OpenMRS debezium engine is already started");

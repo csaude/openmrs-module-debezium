@@ -14,7 +14,7 @@
 	<!-- / Module Properties -->
 	
 	<!-- Module Activator -->
-	<activator>${project.parent.groupId}.${project.parent.artifactId}.DataFilterActivator</activator>
+	<activator>${project.parent.groupId}.${project.parent.artifactId}.DebeziumActivator</activator>
     
     <!-- Global properties -->
 
