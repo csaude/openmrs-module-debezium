@@ -40,12 +40,15 @@ public class DebeziumChangeConsumerTest {
 	@Mock
 	private DatabaseEvent mockDatabaseEvent;
 	
+	@Mock
+	private OpenmrsDebeziumEngine mockEngine;
+	
 	@Before
 	public void setup() {
 		PowerMockito.mockStatic(CustomFileOffsetBackingStore.class);
 		PowerMockito.mockStatic(OpenmrsDebeziumEngine.class);
 		MockitoAnnotations.initMocks(this);
-		consumer = new DebeziumChangeConsumer(mockConsumer);
+		consumer = new DebeziumChangeConsumer(mockConsumer, mockEngine);
 		Whitebox.setInternalState(consumer, "function", mockFunction);
 		Mockito.reset(mockConsumer);
 		Mockito.reset(mockFunction);
@@ -79,11 +82,9 @@ public class DebeziumChangeConsumerTest {
 		consumer.accept(mockChangeEvent);
 		
 		Assert.assertTrue(Whitebox.getInternalState(consumer, "disabled"));
+		verify(mockEngine).stop();
 		PowerMockito.verifyStatic();
 		CustomFileOffsetBackingStore.disable();
-		PowerMockito.verifyStatic();
-		OpenmrsDebeziumEngine.stop();
-		
 	}
 	
 }

@@ -1,5 +1,7 @@
 package org.openmrs.module.debezium;
 
+import static io.debezium.engine.DebeziumEngine.create;
+
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,11 +52,10 @@ public final class OpenmrsDebeziumEngine {
 		
 		log.info("Starting OpenMRS debezium engine...");
 		
-		debeziumEngine = DebeziumEngine.create(Connect.class).using(config.getProperties()).notifying(config.getConsumer())
-		        .build();
+		debeziumEngine = create(Connect.class).using(config.getProperties()).notifying(config.getConsumer()).build();
 		
 		// Run the engine asynchronously ...
-		//TODO Possibly set the thread pool size and add a global property for it configurable
+		//TODO Possibly set the thread pool size and add a global property for it to be configurable
 		executor = Executors.newCachedThreadPool();
 		executor.execute(debeziumEngine);
 	}
@@ -62,7 +63,7 @@ public final class OpenmrsDebeziumEngine {
 	/**
 	 * Stops the debezium engine
 	 */
-	public static synchronized void stop() {
+	public synchronized void stop() {
 		if (debeziumEngine != null) {
 			log.info("Starting task to close the debezium engine");
 			//Since this method is called from our ChangeEvent Consumer, we need to stop the engine in a separate thread
