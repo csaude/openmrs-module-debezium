@@ -18,8 +18,6 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig {
 	
 	private MySqlSslMode sslMode = MySqlSslMode.PREFERRED;
 	
-	private Boolean includeSchemaChanges = false;
-	
 	private Class<? extends DatabaseHistory> historyClass = FileDatabaseHistory.class;
 	
 	private String historyFilename;
@@ -35,8 +33,7 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig {
 		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SNAPSHOT_LOCKING_MODE,
 		    getSnapshotLockMode().getPropertyValue());
 		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SSL_MODE, getSslMode().getPropertyValue());
-		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES,
-		    isIncludeSchemaChanges().toString());
+		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES, "false");
 		//props.setProperty("max.batch.size", "1");
 		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_CLASS, getHistoryClass().getName());
 		if (FileDatabaseHistory.class.equals(getHistoryClass())) {
@@ -90,24 +87,6 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig {
 	 */
 	public void setSslMode(MySqlSslMode sslMode) {
 		this.sslMode = sslMode;
-	}
-	
-	/**
-	 * Gets the includeSchemaChanges
-	 *
-	 * @return the includeSchemaChanges
-	 */
-	public Boolean isIncludeSchemaChanges() {
-		return includeSchemaChanges;
-	}
-	
-	/**
-	 * Sets the includeSchemaChanges
-	 *
-	 * @param includeSchemaChanges the includeSchemaChanges to set
-	 */
-	public void setIncludeSchemaChanges(Boolean includeSchemaChanges) {
-		this.includeSchemaChanges = includeSchemaChanges;
 	}
 	
 	/**

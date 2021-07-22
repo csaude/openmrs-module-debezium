@@ -3,7 +3,7 @@ package org.openmrs.module.debezium;
 /**
  * Base interface for enumerated debezium property values
  */
-public interface DebeziumEnumeratedPropertyValue {
+public interface EnumeratedPropertyValue {
 	
 	/**
 	 * Gets the actual property value to pass to the engine or connector

@@ -37,7 +37,6 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 		config.setDatabaseName(database);
 		config.setSnapshotLockMode(MySqlSnapshotLockMode.EXTENDED);
 		config.setSslMode(MySqlSslMode.DISABLED);
-		config.setIncludeSchemaChanges(true);
 		config.setHistoryClass(FileDatabaseHistory.class);
 		config.setHistoryFilename(HISTORY_FILE);
 		config.setTablesToInclude(Arrays.stream(tablesToInclude.split(",")).collect(Collectors.toSet()));
@@ -50,7 +49,7 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 		    props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SNAPSHOT_LOCKING_MODE));
 		assertEquals(MySqlSslMode.DISABLED.getPropertyValue(),
 		    props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SSL_MODE));
-		assertEquals("true", props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES));
+		assertEquals("false", props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES));
 		assertEquals(FileDatabaseHistory.class.getName(),
 		    props.get(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_CLASS));
 		assertEquals(HISTORY_FILE, props.get(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE));
@@ -66,7 +65,6 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 		config.setDatabaseName(database);
 		config.setSnapshotLockMode(MySqlSnapshotLockMode.EXTENDED);
 		config.setSslMode(MySqlSslMode.DISABLED);
-		config.setIncludeSchemaChanges(true);
 		config.setHistoryClass(FileDatabaseHistory.class);
 		config.setHistoryFilename(HISTORY_FILE);
 		config.setTablesToExclude(Arrays.stream(tablesToExclude.split(",")).collect(Collectors.toSet()));
@@ -79,7 +77,7 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 		    props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SNAPSHOT_LOCKING_MODE));
 		assertEquals(MySqlSslMode.DISABLED.getPropertyValue(),
 		    props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_DB_SSL_MODE));
-		assertEquals("true", props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES));
+		assertEquals("false", props.getProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES));
 		assertEquals(FileDatabaseHistory.class.getName(),
 		    props.get(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_CLASS));
 		assertEquals(HISTORY_FILE, props.get(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE));
