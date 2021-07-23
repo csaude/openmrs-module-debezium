@@ -33,4 +33,34 @@ public class DebeziumActivator extends BaseModuleActivator {
 		log.info("Debezium module stopped");
 	}
 	
+	/**
+	 * @see BaseModuleActivator#contextRefreshed()
+	 */
+	@Override
+	public void contextRefreshed() {
+		log.info("Starting OpenMRS debezium engine after context refresh");
+		
+		DebeziumEngineManager.start();
+	}
+	
+	/**
+	 * @see BaseModuleActivator#willRefreshContext()
+	 */
+	@Override
+	public void willRefreshContext() {
+		log.info("Stopping OpenMRS debezium engine before context refresh");
+		
+		DebeziumEngineManager.stop();
+	}
+	
+	/**
+	 * @see BaseModuleActivator#willStop()
+	 */
+	@Override
+	public void willStop() {
+		log.info("Stopping OpenMRS debezium engine before debezium module is stopped");
+		
+		DebeziumEngineManager.stop();
+	}
+	
 }
