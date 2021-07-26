@@ -54,6 +54,12 @@
                 <artifactId>openmrs-api</artifactId>
                 <version>${openmrsPlatformVersion}</version>
                 <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>mysql</groupId>
+                        <artifactId>mysql-connector-java</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>io.debezium</groupId>
@@ -109,12 +115,6 @@
                 <groupId>io.debezium</groupId>
                 <artifactId>debezium-connector-mysql</artifactId>
                 <version>${debeziumVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>mysql</groupId>
-                        <artifactId>mysql-connector-java</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>io.debezium</groupId>
@@ -135,12 +135,6 @@
                 <artifactId>openmrs-test</artifactId>
                 <version>${openmrsPlatformVersion}</version>
                 <type>pom</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>8.0.21</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

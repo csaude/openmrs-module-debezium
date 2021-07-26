@@ -46,9 +46,9 @@
         <description>
             An optional MySQL specific property that takes a comma-separated list of table names whose changes you want
             to capture, the module does not capture changes in any table not included in this list. By default, the
-            connector captures changes in every table. Do not also set of the
+            connector captures changes in every table. Do not also set the value for the
             ${project.parent.artifactId}.table.exclude.list property because they are mutually exclusive. This property
-            translates to do not capture any tables except these.
+            translates to do not capture changes for any tables except these.
         </description>
     </globalProperty>
 
@@ -56,9 +56,9 @@
         <property>${project.parent.artifactId}.mysql.table.exclude.list</property>
         <description>
             An optional MySQL specific property that takes a comma-separated list of table names whose changes you do
-            not want to capture, the module captures changes in any table not included in this list. Do not also set of
-            the value of the ${project.parent.artifactId}.table.include.list property because they are mutually
-            exclusive. This property translates to capture all tables except these.
+            not want to capture, the module captures changes in any table not included in this list. Do not also set the
+            value for the ${project.parent.artifactId}.table.include.list property because they are mutually
+            exclusive. This property translates to capture changes for all tables except these.
         </description>
     </globalProperty>
 
