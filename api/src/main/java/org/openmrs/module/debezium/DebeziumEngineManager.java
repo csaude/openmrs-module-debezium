@@ -1,20 +1,16 @@
 package org.openmrs.module.debezium;
 
-import static java.util.stream.Collectors.toSet;
 import static org.openmrs.api.context.Context.getRegisteredComponent;
 import static org.openmrs.module.debezium.DebeziumConstants.EB_EVENT_CONSUMER_BEAN_NAME;
 import static org.openmrs.module.debezium.DebeziumConstants.GP_ENABLED;
 
-import java.util.Arrays;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.debezium.mysql.MySqlDebeziumConfig;
-import org.openmrs.module.debezium.mysql.MySqlSnapshotLockMode;
 import org.openmrs.module.debezium.mysql.MySqlSnapshotMode;
-import org.openmrs.module.debezium.mysql.MySqlSslMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +39,8 @@ final class DebeziumEngineManager {
 			
 			log.info("Starting OpenMRS debezium engine after context refresh");
 			
-			//TODO support postgres
-			//TODO Add a GP to allow admins to enable/disable the debezium engine
-			MySqlDebeziumConfig config = new MySqlDebeziumConfig();
+			//TODO support postgres i.e. add a GP to specify the connector class
+			BaseDebeziumConfig config = new MySqlDebeziumConfig();
 			
 			String userGp = adminService.getGlobalProperty(DebeziumConstants.GP_USER);
 			if (StringUtils.isNotBlank(userGp)) {
@@ -56,36 +51,10 @@ final class DebeziumEngineManager {
 				config.setPassword(Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_PASSWORD));
 			}
 			
-			String passGp = adminService.getGlobalProperty(DebeziumConstants.GP_PASSWORD);
-			if (StringUtils.isNotBlank(passGp)) {
-				config.setPassword(passGp);
-			} else {
-				config.setPassword(Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_PASSWORD));
-			}
-			
-			String includeGp = adminService.getGlobalProperty(DebeziumConstants.GP_TABLES_TO_INCLUDE);
-			if (StringUtils.isNotBlank(includeGp)) {
-				config.setTablesToInclude(Arrays.stream(includeGp.split(",")).collect(toSet()));
-			}
-			
-			String excludeGp = adminService.getGlobalProperty(DebeziumConstants.GP_TABLES_TO_EXCLUDE);
-			if (StringUtils.isNotBlank(excludeGp)) {
-				config.setTablesToExclude(Arrays.stream(excludeGp.split(",")).collect(toSet()));
-			}
-			
 			String snapshotModeGp = adminService.getGlobalProperty(DebeziumConstants.GP_SNAPSHOT_MODE);
 			if (StringUtils.isNotBlank(snapshotModeGp)) {
-				config.setSnapshotMode(MySqlSnapshotMode.valueOf(snapshotModeGp));
-			}
-			
-			String sslModeGp = adminService.getGlobalProperty(DebeziumConstants.GP_SSL_MODE);
-			if (StringUtils.isNotBlank(sslModeGp)) {
-				config.setSslMode(MySqlSslMode.valueOf(sslModeGp));
-			}
-			
-			String snapshotLockGp = adminService.getGlobalProperty(DebeziumConstants.GP_SNAPSHOT_LOCK_MODE);
-			if (StringUtils.isNotBlank(snapshotLockGp)) {
-				config.setSnapshotLockMode(MySqlSnapshotLockMode.valueOf(snapshotLockGp));
+				//TODO support postgres
+				config.setSnapshotMode(MySqlSnapshotMode.valueOf(snapshotModeGp.toUpperCase()));
 			}
 			
 			String jdbcUrl = Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_URL);
@@ -109,8 +78,9 @@ final class DebeziumEngineManager {
 			config.setHost(host);
 			config.setPort(Integer.valueOf(portStr));
 			config.setDatabaseName(dbName);
-			config.setHistoryFilename(adminService.getGlobalProperty(DebeziumConstants.GP_HISTORY_FILE));
 			config.setOffsetStorageFilename(adminService.getGlobalProperty(DebeziumConstants.GP_OFFSET_STORAGE_FILE));
+			
+			config.setAdditionalConfigProperties();
 			
 			engine = OpenmrsDebeziumEngine.getInstance();
 			config.setConsumer(new DebeziumChangeConsumer(consumer, engine));

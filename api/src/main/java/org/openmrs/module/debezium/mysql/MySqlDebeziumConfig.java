@@ -1,18 +1,32 @@
 package org.openmrs.module.debezium.mysql;
 
+import static java.util.stream.Collectors.toSet;
+
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.openmrs.api.AdministrationService;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.debezium.BaseDebeziumConfig;
+import org.openmrs.module.debezium.DebeziumConstants;
+import org.openmrs.module.debezium.SnapshotMode;
 
+import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.relational.history.DatabaseHistory;
 import io.debezium.relational.history.FileDatabaseHistory;
 
 /**
  * Debezium configuration for the MySQL connector
  */
-public class MySqlDebeziumConfig extends BaseDebeziumConfig {
+public class MySqlDebeziumConfig extends BaseDebeziumConfig<MySqlConnector> {
+	
+	//Engine properties
+	private Class<MySqlConnector> connectorClass = MySqlConnector.class;
+	
+	private SnapshotMode snapshotMode = MySqlSnapshotMode.INITIAL;
 	
 	private MySqlSnapshotLockMode snapshotLockMode = MySqlSnapshotLockMode.EXTENDED;
 	
@@ -40,17 +54,58 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig {
 			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE, getHistoryFilename());
 		}
 		
-		if (getTablesToInclude() != null) {
-			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_INCLUDE_LIST, String.join(",",
-			    getTablesToInclude().stream().map(t -> getDatabaseName() + "." + t).collect(Collectors.toSet())));
+		if (CollectionUtils.isNotEmpty(getTablesToInclude())) {
+			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_INCLUDE_LIST,
+			    String.join(",", getTablesToInclude().stream().map(t -> getDatabaseName() + "." + t).collect(toSet())));
 		}
 		
-		if (getTablesToExclude() != null) {
-			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_EXCLUDE_LIST, String.join(",",
-			    getTablesToExclude().stream().map(t -> getDatabaseName() + "." + t).collect(Collectors.toSet())));
+		if (CollectionUtils.isNotEmpty(getTablesToExclude())) {
+			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_EXCLUDE_LIST,
+			    String.join(",", getTablesToExclude().stream().map(t -> getDatabaseName() + "." + t).collect(toSet())));
 		}
 		
 		return props;
+	}
+	
+	@Override
+	public void setAdditionalConfigProperties() {
+		AdministrationService adminService = Context.getAdministrationService();
+		setHistoryFilename(adminService.getGlobalProperty(DebeziumConstants.GP_HISTORY_FILE));
+		
+		String includeGp = adminService.getGlobalProperty(DebeziumConstants.GP_TABLES_TO_INCLUDE);
+		if (StringUtils.isNotBlank(includeGp)) {
+			setTablesToInclude(Arrays.stream(includeGp.split(",")).collect(toSet()));
+		}
+		
+		String excludeGp = adminService.getGlobalProperty(DebeziumConstants.GP_TABLES_TO_EXCLUDE);
+		if (StringUtils.isNotBlank(excludeGp)) {
+			setTablesToExclude(Arrays.stream(excludeGp.split(",")).collect(toSet()));
+		}
+		
+		String sslModeGp = adminService.getGlobalProperty(DebeziumConstants.GP_SSL_MODE);
+		if (StringUtils.isNotBlank(sslModeGp)) {
+			setSslMode(MySqlSslMode.valueOf(sslModeGp.toUpperCase()));
+		}
+		
+		String snapshotLockGp = adminService.getGlobalProperty(DebeziumConstants.GP_SNAPSHOT_LOCK_MODE);
+		if (StringUtils.isNotBlank(snapshotLockGp)) {
+			setSnapshotLockMode(MySqlSnapshotLockMode.valueOf(snapshotLockGp.toUpperCase()));
+		}
+	}
+	
+	@Override
+	public Class<MySqlConnector> getConnectorClass() {
+		return connectorClass;
+	}
+	
+	@Override
+	public SnapshotMode getSnapshotMode() {
+		return snapshotMode;
+	}
+	
+	@Override
+	public void setSnapshotMode(SnapshotMode snapshotMode) {
+		this.snapshotMode = snapshotMode;
 	}
 	
 	/**
@@ -160,4 +215,5 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig {
 	public void setTablesToExclude(Set<String> tablesToExclude) {
 		this.tablesToExclude = tablesToExclude;
 	}
+	
 }

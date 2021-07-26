@@ -24,7 +24,6 @@ public abstract class BaseDebeziumConfigTest {
 	protected final MySqlSnapshotMode snapshotMode = MySqlSnapshotMode.SCHEMA_ONLY;
 	
 	protected void setCoreProperties(BaseDebeziumConfig config) {
-		config.setConnectorClass(MySqlConnector.class);
 		config.setOffsetStorageClass(FileOffsetBackingStore.class);
 		config.setOffsetStorageFilename(storageFilename);
 		config.setHost(host);

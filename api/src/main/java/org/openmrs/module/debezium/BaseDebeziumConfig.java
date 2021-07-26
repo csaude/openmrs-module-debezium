@@ -3,22 +3,17 @@ package org.openmrs.module.debezium;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-import org.apache.kafka.connect.source.SourceConnector;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.apache.kafka.connect.storage.OffsetBackingStore;
-import org.openmrs.module.debezium.mysql.MySqlSnapshotMode;
 
-import io.debezium.connector.mysql.MySqlConnector;
+import io.debezium.connector.common.RelationalBaseSourceConnector;
 import io.debezium.engine.ChangeEvent;
 
 /**
  * Base class for debezium configuration classes
  */
-public abstract class BaseDebeziumConfig {
-	
-	//Engine properties
-	private Class<? extends SourceConnector> connectorClass = MySqlConnector.class;
+public abstract class BaseDebeziumConfig<T extends RelationalBaseSourceConnector> {
 	
 	private Class<? extends OffsetBackingStore> offsetStorageClass = CustomFileOffsetBackingStore.class;
 	
@@ -34,8 +29,6 @@ public abstract class BaseDebeziumConfig {
 	private String password;
 	
 	private String databaseName;
-	
-	private SnapshotMode snapshotMode = MySqlSnapshotMode.INITIAL;
 	
 	private Consumer<ChangeEvent<SourceRecord, SourceRecord>> consumer;
 	
@@ -75,18 +68,26 @@ public abstract class BaseDebeziumConfig {
 	 *
 	 * @return the connectorClass
 	 */
-	public Class<? extends SourceConnector> getConnectorClass() {
-		return connectorClass;
-	}
+	public abstract Class<T> getConnectorClass();
 	
 	/**
-	 * Sets the connectorClass
+	 * Gets the snapshotMode
 	 *
-	 * @param connectorClass the connectorClass to set
+	 * @return the snapshotMode
 	 */
-	public void setConnectorClass(Class<? extends SourceConnector> connectorClass) {
-		this.connectorClass = connectorClass;
-	}
+	public abstract SnapshotMode getSnapshotMode();
+	
+	/**
+	 * Sets the snapshotMode
+	 *
+	 * @param snapshotMode the snapshotMode to set
+	 */
+	public abstract void setSnapshotMode(SnapshotMode snapshotMode);
+	
+	/**
+	 * Subclasses should implement this method to set connector specific properties
+	 */
+	public abstract void setAdditionalConfigProperties();
 	
 	/**
 	 * Gets the offsetStorageClass
@@ -215,24 +216,6 @@ public abstract class BaseDebeziumConfig {
 	}
 	
 	/**
-	 * Gets the snapshotMode
-	 *
-	 * @return the snapshotMode
-	 */
-	public SnapshotMode getSnapshotMode() {
-		return snapshotMode;
-	}
-	
-	/**
-	 * Sets the snapshotMode
-	 *
-	 * @param snapshotMode the snapshotMode to set
-	 */
-	public void setSnapshotMode(SnapshotMode snapshotMode) {
-		this.snapshotMode = snapshotMode;
-	}
-	
-	/**
 	 * Gets the consumer
 	 *
 	 * @return the consumer
@@ -249,4 +232,5 @@ public abstract class BaseDebeziumConfig {
 	public void setConsumer(Consumer<ChangeEvent<SourceRecord, SourceRecord>> consumer) {
 		this.consumer = consumer;
 	}
+	
 }
