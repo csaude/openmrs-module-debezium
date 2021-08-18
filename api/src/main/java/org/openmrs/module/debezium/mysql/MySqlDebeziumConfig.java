@@ -2,7 +2,6 @@ package org.openmrs.module.debezium.mysql;
 
 import static java.util.stream.Collectors.toSet;
 
-import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
 
@@ -17,6 +16,7 @@ import org.openmrs.module.debezium.SnapshotMode;
 import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.relational.history.DatabaseHistory;
 import io.debezium.relational.history.FileDatabaseHistory;
+import io.debezium.relational.history.MemoryDatabaseHistory;
 
 /**
  * Debezium configuration for the MySQL connector
@@ -26,7 +26,7 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig<MySqlConnector> {
 	//Engine properties
 	private Class<MySqlConnector> connectorClass = MySqlConnector.class;
 	
-	private SnapshotMode snapshotMode = MySqlSnapshotMode.INITIAL;
+	private SnapshotMode snapshotMode = MySqlSnapshotMode.SCHEMA_ONLY;
 	
 	private MySqlSnapshotLockMode snapshotLockMode = MySqlSnapshotLockMode.EXTENDED;
 	
@@ -39,6 +39,17 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig<MySqlConnector> {
 	private Set<String> tablesToInclude;
 	
 	private Set<String> tablesToExclude;
+	
+	public MySqlDebeziumConfig(boolean snapshotOnly, Set<String> tablesToInclude, Set<String> tablesToExclude) {
+		super(snapshotOnly);
+		if (snapshotOnly) {
+			snapshotMode = MySqlSnapshotMode.INITIAL_ONLY;
+			historyClass = MemoryDatabaseHistory.class;
+		}
+		
+		this.tablesToInclude = tablesToInclude;
+		this.tablesToExclude = tablesToExclude;
+	}
 	
 	@Override
 	public Properties getProperties() {
@@ -71,16 +82,6 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig<MySqlConnector> {
 	public void setAdditionalConfigProperties() {
 		AdministrationService adminService = Context.getAdministrationService();
 		setHistoryFilename(adminService.getGlobalProperty(DebeziumConstants.GP_HISTORY_FILE));
-		
-		String includeGp = adminService.getGlobalProperty(DebeziumConstants.GP_TABLES_TO_INCLUDE);
-		if (StringUtils.isNotBlank(includeGp)) {
-			setTablesToInclude(Arrays.stream(includeGp.split(",")).collect(toSet()));
-		}
-		
-		String excludeGp = adminService.getGlobalProperty(DebeziumConstants.GP_TABLES_TO_EXCLUDE);
-		if (StringUtils.isNotBlank(excludeGp)) {
-			setTablesToExclude(Arrays.stream(excludeGp.split(",")).collect(toSet()));
-		}
 		
 		String sslModeGp = adminService.getGlobalProperty(DebeziumConstants.GP_SSL_MODE);
 		if (StringUtils.isNotBlank(sslModeGp)) {

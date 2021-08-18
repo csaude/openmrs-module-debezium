@@ -18,7 +18,7 @@ public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord
 	
 	private static final Logger log = LoggerFactory.getLogger(DebeziumChangeConsumer.class);
 	
-	private Consumer<DatabaseEvent> consumer;
+	private DatabaseEventListener listener;
 	
 	private OpenmrsDebeziumEngine engine;
 	
@@ -26,8 +26,8 @@ public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord
 	
 	private boolean disabled = false;
 	
-	public DebeziumChangeConsumer(Consumer<DatabaseEvent> consumer, OpenmrsDebeziumEngine engine) {
-		this.consumer = consumer;
+	public DebeziumChangeConsumer(DatabaseEventListener listener, OpenmrsDebeziumEngine engine) {
+		this.listener = listener;
 		this.engine = engine;
 		Assert.notNull(this.engine);
 	}
@@ -51,9 +51,10 @@ public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord
 				log.debug("Notifying listener of the database event: " + dbEvent);
 			}
 			
-			consumer.accept(dbEvent);
+			listener.onEvent(dbEvent);
 		}
 		catch (Throwable t) {
+			//TODO Do not disable in case of a snapshot event
 			disabled = true;
 			CustomFileOffsetBackingStore.disable();
 			if (log.isDebugEnabled()) {

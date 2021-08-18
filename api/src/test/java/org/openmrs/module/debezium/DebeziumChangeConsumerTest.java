@@ -4,7 +4,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.junit.Assert;
@@ -32,7 +31,7 @@ public class DebeziumChangeConsumerTest {
 	private Function mockFunction;
 	
 	@Mock
-	private Consumer mockConsumer;
+	private DatabaseEventListener mockListener;
 	
 	@Mock
 	private ChangeEvent mockChangeEvent;
@@ -48,9 +47,9 @@ public class DebeziumChangeConsumerTest {
 		PowerMockito.mockStatic(CustomFileOffsetBackingStore.class);
 		PowerMockito.mockStatic(OpenmrsDebeziumEngine.class);
 		MockitoAnnotations.initMocks(this);
-		consumer = new DebeziumChangeConsumer(mockConsumer, mockEngine);
+		consumer = new DebeziumChangeConsumer(mockListener, mockEngine);
 		Whitebox.setInternalState(consumer, "function", mockFunction);
-		Mockito.reset(mockConsumer);
+		Mockito.reset(mockListener);
 		Mockito.reset(mockFunction);
 	}
 	
@@ -61,7 +60,7 @@ public class DebeziumChangeConsumerTest {
 		consumer.accept(mockChangeEvent);
 		
 		verify(mockFunction).apply(mockChangeEvent);
-		verify(mockConsumer).accept(mockDatabaseEvent);
+		verify(mockListener).onEvent(mockDatabaseEvent);
 	}
 	
 	@Test
@@ -71,7 +70,7 @@ public class DebeziumChangeConsumerTest {
 		consumer.accept(mockChangeEvent);
 		
 		verifyZeroInteractions(mockFunction);
-		verifyZeroInteractions(mockConsumer);
+		verifyZeroInteractions(mockListener);
 	}
 	
 	@Test

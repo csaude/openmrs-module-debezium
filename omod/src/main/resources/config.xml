@@ -42,27 +42,6 @@
     </globalProperty>
 
     <globalProperty>
-        <property>${project.parent.artifactId}.mysql.table.include.list</property>
-        <description>
-            An optional MySQL specific property that takes a comma-separated list of table names whose changes you want
-            to capture, the module does not capture changes in any table not included in this list. By default, the
-            connector captures changes in every table. Do not also set the value for the
-            ${project.parent.artifactId}.table.exclude.list property because they are mutually exclusive. This property
-            translates to do not capture changes for any tables except these.
-        </description>
-    </globalProperty>
-
-    <globalProperty>
-        <property>${project.parent.artifactId}.mysql.table.exclude.list</property>
-        <description>
-            An optional MySQL specific property that takes a comma-separated list of table names whose changes you do
-            not want to capture, the module captures changes in any table not included in this list. Do not also set the
-            value for the ${project.parent.artifactId}.table.include.list property because they are mutually
-            exclusive. This property translates to capture changes for all tables except these.
-        </description>
-    </globalProperty>
-
-    <globalProperty>
         <property>${project.parent.artifactId}.mysql.history.file.filename</property>
         <description>
             A required MySQL specific property that specifies the path to a file where the database history is stored
@@ -72,15 +51,6 @@
     <globalProperty>
         <property>${project.parent.artifactId}.offset.storage.file.filename</property>
         <description>A required path to file where offsets are to be stored</description>
-    </globalProperty>
-
-    <globalProperty>
-        <property>${project.parent.artifactId}.snapshot.mode</property>
-        <description>
-            An optional property that specifies the criteria for running a snapshot when the connector starts, please
-            refer to the official documentation of your respective debezium database connector for possible values, the
-            default connector is for MySQL.
-        </description>
     </globalProperty>
 
     <globalProperty>

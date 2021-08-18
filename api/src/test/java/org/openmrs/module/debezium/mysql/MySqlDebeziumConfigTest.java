@@ -1,11 +1,11 @@
 package org.openmrs.module.debezium.mysql;
 
+import static java.util.Arrays.stream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.openmrs.module.debezium.mysql.MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_EXCLUDE_LIST;
 import static org.openmrs.module.debezium.mysql.MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_INCLUDE_LIST;
 
-import java.util.Arrays;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -32,14 +32,14 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 	
 	@Test
 	public void getProperties_shouldReturnTheMySqlProperties() {
-		MySqlDebeziumConfig config = new MySqlDebeziumConfig();
+		MySqlDebeziumConfig config = new MySqlDebeziumConfig(false,
+		        stream(tablesToInclude.split(",")).collect(Collectors.toSet()), null);
 		setCoreProperties(config);
 		config.setDatabaseName(database);
 		config.setSnapshotLockMode(MySqlSnapshotLockMode.EXTENDED);
 		config.setSslMode(MySqlSslMode.DISABLED);
 		config.setHistoryClass(FileDatabaseHistory.class);
 		config.setHistoryFilename(HISTORY_FILE);
-		config.setTablesToInclude(Arrays.stream(tablesToInclude.split(",")).collect(Collectors.toSet()));
 		
 		Properties props = config.getProperties();
 		
@@ -60,14 +60,14 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 	
 	@Test
 	public void getProperties_shouldReturnTheMySqlPropertiesWithTablesToExclude() {
-		MySqlDebeziumConfig config = new MySqlDebeziumConfig();
+		MySqlDebeziumConfig config = new MySqlDebeziumConfig(false, null,
+		        stream(tablesToExclude.split(",")).collect(Collectors.toSet()));
 		setCoreProperties(config);
 		config.setDatabaseName(database);
 		config.setSnapshotLockMode(MySqlSnapshotLockMode.EXTENDED);
 		config.setSslMode(MySqlSslMode.DISABLED);
 		config.setHistoryClass(FileDatabaseHistory.class);
 		config.setHistoryFilename(HISTORY_FILE);
-		config.setTablesToExclude(Arrays.stream(tablesToExclude.split(",")).collect(Collectors.toSet()));
 		
 		Properties props = config.getProperties();
 		

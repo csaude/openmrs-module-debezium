@@ -12,9 +12,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.apache.kafka.connect.source.SourceRecord;
@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.module.debezium.DatabaseEvent.Snapshot;
 import org.openmrs.module.debezium.mysql.MySqlDebeziumConfig;
+import org.openmrs.module.debezium.mysql.MySqlSnapshotMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.MySQLContainer;
@@ -65,7 +66,7 @@ public class OpenmrsDebeziumEngineTest {
 	
 	public class TestDebeziumChangeConsumer extends DebeziumChangeConsumer {
 		
-		public TestDebeziumChangeConsumer(Consumer<DatabaseEvent> listener) {
+		public TestDebeziumChangeConsumer(DatabaseEventListener listener) {
 			super(listener, OpenmrsDebeziumEngine.getInstance());
 		}
 		
@@ -109,7 +110,8 @@ public class OpenmrsDebeziumEngineTest {
 	private void startEngine() throws Exception {
 		log.info("Starting OpenMRS test debezium engine");
 		engine = OpenmrsDebeziumEngine.getInstance();
-		MySqlDebeziumConfig config = new MySqlDebeziumConfig();
+		MySqlDebeziumConfig config = new MySqlDebeziumConfig(false, Collections.singleton("location"), null);
+		config.setSnapshotMode(MySqlSnapshotMode.INITIAL);
 		config.setOffsetStorageClass(MemoryOffsetBackingStore.class);
 		config.setHistoryClass(MemoryDatabaseHistory.class);
 		config.setHost(mysqlContainer.getHost());
@@ -117,9 +119,26 @@ public class OpenmrsDebeziumEngineTest {
 		config.setDatabaseName(DB_NAME);
 		config.setUsername("root");
 		config.setPassword(PASSWORD);
-		config.setTablesToInclude(Collections.singleton("location"));
 		events = new ArrayList();
-		config.setConsumer(new TestDebeziumChangeConsumer(e -> events.add(e)));
+		config.setConsumer(new TestDebeziumChangeConsumer(new DatabaseEventListener() {
+			
+			@Override
+			public void onEvent(DatabaseEvent e) {
+				events.add(e);
+			}
+			
+			@Override
+			public Set<String> getTablesToInclude() {
+				return null;
+			}
+			
+			@Override
+			public Set<String> getTablesToExclude() {
+				return null;
+			}
+			
+		}));
+		
 		engine.start(config);
 		firstEventLatch = new CountDownLatch(1);
 		firstEventLatch.await(60, TimeUnit.SECONDS);

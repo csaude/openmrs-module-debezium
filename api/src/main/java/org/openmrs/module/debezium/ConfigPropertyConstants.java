@@ -32,4 +32,6 @@ public class ConfigPropertyConstants {
 	
 	protected static final String CONNECTOR_PROP_TOMBSTONE_ON_DELETE = "tombstones.on.delete";
 	
+	protected static final String SYS_PROP_SNAPSHOT = "org.openmrs.module.debezium.snapshotOnly";
+	
 }
