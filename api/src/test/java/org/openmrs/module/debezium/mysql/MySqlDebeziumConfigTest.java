@@ -15,6 +15,7 @@ import org.openmrs.module.debezium.BaseDebeziumConfigTest;
 import org.openmrs.module.debezium.CustomFileOffsetBackingStore;
 
 import io.debezium.relational.history.FileDatabaseHistory;
+import io.debezium.relational.history.MemoryDatabaseHistory;
 
 public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 	
@@ -37,6 +38,7 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 		MySqlDebeziumConfig config = new MySqlDebeziumConfig(true, null, null);
 		assertEquals(MySqlSnapshotMode.INITIAL_ONLY, config.getSnapshotMode());
 		assertEquals(MemoryOffsetBackingStore.class, config.getOffsetStorageClass());
+		assertEquals(MemoryDatabaseHistory.class, config.getHistoryClass());
 	}
 	
 	@Test
@@ -44,6 +46,7 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 		MySqlDebeziumConfig config = new MySqlDebeziumConfig(false, null, null);
 		assertEquals(MySqlSnapshotMode.SCHEMA_ONLY, config.getSnapshotMode());
 		assertEquals(CustomFileOffsetBackingStore.class, config.getOffsetStorageClass());
+		assertEquals(FileDatabaseHistory.class, config.getHistoryClass());
 	}
 	
 	@Test

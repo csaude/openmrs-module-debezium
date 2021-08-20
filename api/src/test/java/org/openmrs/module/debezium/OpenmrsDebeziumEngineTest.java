@@ -128,12 +128,12 @@ public class OpenmrsDebeziumEngineTest {
 			}
 			
 			@Override
-			public Set<String> getTablesToInclude() {
+			public Set<String> getTablesToInclude(boolean snapshotOnly) {
 				return null;
 			}
 			
 			@Override
-			public Set<String> getTablesToExclude() {
+			public Set<String> getTablesToExclude(boolean snapshotOnly) {
 				return null;
 			}
 			

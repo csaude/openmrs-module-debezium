@@ -38,9 +38,9 @@ final class DebeziumEngineManager {
 			log.info("Starting OpenMRS debezium engine after context refresh");
 			
 			//TODO support postgres i.e. add a GP to specify the connector class
-			String snapshotOnly = Utils.getSystemProperty(ConfigPropertyConstants.SYS_PROP_SNAPSHOT);
-			BaseDebeziumConfig config = new MySqlDebeziumConfig(snapshotOnly != null, listener.getTablesToInclude(),
-			        listener.getTablesToExclude());
+			boolean snapshotOnly = Utils.getSystemProperty(ConfigPropertyConstants.SYS_PROP_SNAPSHOT) != null;
+			BaseDebeziumConfig config = new MySqlDebeziumConfig(snapshotOnly, listener.getTablesToInclude(snapshotOnly),
+			        listener.getTablesToExclude(snapshotOnly));
 			
 			String userGp = adminService.getGlobalProperty(DebeziumConstants.GP_USER);
 			if (StringUtils.isNotBlank(userGp)) {

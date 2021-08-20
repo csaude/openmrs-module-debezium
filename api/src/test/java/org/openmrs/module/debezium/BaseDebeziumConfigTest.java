@@ -21,7 +21,7 @@ public abstract class BaseDebeziumConfigTest {
 	protected final String password = "test";
 	
 	protected final MySqlSnapshotMode snapshotMode = MySqlSnapshotMode.SCHEMA_ONLY;
-
+	
 	protected void setCoreProperties(BaseDebeziumConfig config) {
 		config.setOffsetStorageClass(CustomFileOffsetBackingStore.class);
 		config.setOffsetStorageFilename(storageFilename);
