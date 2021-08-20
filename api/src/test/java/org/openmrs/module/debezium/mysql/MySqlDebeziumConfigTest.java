@@ -9,8 +9,10 @@ import static org.openmrs.module.debezium.mysql.MysqlConfigPropertyConstants.CON
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
 import org.junit.Test;
 import org.openmrs.module.debezium.BaseDebeziumConfigTest;
+import org.openmrs.module.debezium.CustomFileOffsetBackingStore;
 
 import io.debezium.relational.history.FileDatabaseHistory;
 
@@ -29,6 +31,20 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 	private static final String tablesToExclude = TABLE_ENC_TYPE + "," + TABLE_PERSON;
 	
 	private final String database = "testDb";
+	
+	@Test
+	public void constructor_shouldSetSnapshotModeAndOffSetBackingStoreIfSnapShotIsSetToTrue() {
+		MySqlDebeziumConfig config = new MySqlDebeziumConfig(true, null, null);
+		assertEquals(MySqlSnapshotMode.INITIAL_ONLY, config.getSnapshotMode());
+		assertEquals(MemoryOffsetBackingStore.class, config.getOffsetStorageClass());
+	}
+	
+	@Test
+	public void constructor_shouldKeepDefaultSnapshotModeAndOffSetBackingStoreIfSnapShotIsSetToFalse() {
+		MySqlDebeziumConfig config = new MySqlDebeziumConfig(false, null, null);
+		assertEquals(MySqlSnapshotMode.SCHEMA_ONLY, config.getSnapshotMode());
+		assertEquals(CustomFileOffsetBackingStore.class, config.getOffsetStorageClass());
+	}
 	
 	@Test
 	public void getProperties_shouldReturnTheMySqlProperties() {
