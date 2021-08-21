@@ -81,7 +81,7 @@ final class DebeziumEngineManager {
 			
 			engine = OpenmrsDebeziumEngine.getInstance();
 			config.setConsumer(new DebeziumChangeConsumer(listener, engine));
-
+			
 			engine.start(config);
 		}
 		
