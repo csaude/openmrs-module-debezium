@@ -56,7 +56,7 @@ public final class OpenmrsDebeziumEngine {
 		
 		// Run the engine asynchronously ...
 		//TODO Possibly set the thread pool size and add a global property for it to be configurable
-		executor = Executors.newCachedThreadPool();
+		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		executor.execute(debeziumEngine);
 	}
 	

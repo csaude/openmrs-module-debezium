@@ -26,4 +26,6 @@ public class DebeziumConstants {
 	
 	public final static String GP_SSL_MODE = MODULE_ID + ".mysql.database.ssl.mode";
 	
+	protected static final String SYS_PROP_SNAPSHOT = "org.openmrs.module.debezium.snapshotOnly";
+	
 }

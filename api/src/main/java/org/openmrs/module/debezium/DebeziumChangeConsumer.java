@@ -61,7 +61,7 @@ public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord
 				log.debug("Disabled change event consumer");
 			}
 			
-			log.warn("Failed to process database change event, stopping debezium engine", t);
+			log.error("An error was thrown by the listener while processing database event, stopping debezium engine", t);
 			
 			//TODO Send a notification to the admin
 			engine.stop();

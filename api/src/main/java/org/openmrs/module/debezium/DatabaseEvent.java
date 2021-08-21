@@ -93,8 +93,7 @@ public class DatabaseEvent {
 	
 	@Override
 	public String toString() {
-		return "Event {tableName=" + tableName + ", primaryKeyId=" + primaryKeyId + ", operation=" + operation
-		        + ", snapshot=" + snapshot + "}";
+		return "Event {table=" + tableName + ", id=" + primaryKeyId + ", op=" + operation + ", snapshot=" + snapshot + "}";
 	}
 	
 }
