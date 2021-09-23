@@ -67,7 +67,7 @@ public class OpenmrsDebeziumEngineTest {
 	public class TestDebeziumChangeConsumer extends DebeziumChangeConsumer {
 		
 		public TestDebeziumChangeConsumer(DatabaseEventListener listener) {
-			super(listener, OpenmrsDebeziumEngine.getInstance());
+			super(listener);
 		}
 		
 		@Override

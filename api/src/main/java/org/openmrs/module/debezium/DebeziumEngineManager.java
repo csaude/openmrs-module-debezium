@@ -26,7 +26,6 @@ final class DebeziumEngineManager {
 		synchronized (DebeziumEngineManager.class) {
 			stop();
 			AdministrationService adminService = Context.getAdministrationService();
-			//TODO Add GlobalPropertyListener in order to start/stop debezium on demand by the admin
 			if (!Boolean.valueOf(adminService.getGlobalProperty(GP_ENABLED))) {
 				log.info("Not starting debezium because it is disabled via the global property named: " + GP_ENABLED);
 				return;
@@ -80,7 +79,7 @@ final class DebeziumEngineManager {
 			config.setAdditionalConfigProperties();
 			
 			engine = OpenmrsDebeziumEngine.getInstance();
-			config.setConsumer(new DebeziumChangeConsumer(listener, engine));
+			config.setConsumer(new DebeziumChangeConsumer(listener));
 			
 			engine.start(config);
 		}

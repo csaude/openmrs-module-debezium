@@ -6,7 +6,6 @@ import java.util.function.Function;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
 
 import io.debezium.engine.ChangeEvent;
 
@@ -20,16 +19,12 @@ public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord
 	
 	private DatabaseEventListener listener;
 	
-	private OpenmrsDebeziumEngine engine;
-	
 	private Function<ChangeEvent<SourceRecord, SourceRecord>, DatabaseEvent> function = new DbChangeToEventFunction();
 	
 	private boolean disabled = false;
 	
-	public DebeziumChangeConsumer(DatabaseEventListener listener, OpenmrsDebeziumEngine engine) {
+	public DebeziumChangeConsumer(DatabaseEventListener listener) {
 		this.listener = listener;
-		this.engine = engine;
-		Assert.notNull(this.engine);
 	}
 	
 	@Override
@@ -64,7 +59,8 @@ public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord
 			log.error("An error was thrown by the listener while processing database event, stopping debezium engine", t);
 			
 			//TODO Send a notification to the admin
-			engine.stop();
+			//Note that this GP update will trigger an engine stop by DebeziumGlobalPropertyListener 
+			Utils.updateGlobalProperty(DebeziumConstants.GP_ENABLED, "false");
 		}
 		
 	}

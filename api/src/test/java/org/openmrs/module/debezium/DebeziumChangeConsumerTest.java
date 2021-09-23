@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.openmrs.api.AdministrationService;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -22,7 +23,7 @@ import io.debezium.DebeziumException;
 import io.debezium.engine.ChangeEvent;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ CustomFileOffsetBackingStore.class, OpenmrsDebeziumEngine.class })
+@PrepareForTest({ CustomFileOffsetBackingStore.class, OpenmrsDebeziumEngine.class, Utils.class })
 public class DebeziumChangeConsumerTest {
 	
 	private DebeziumChangeConsumer consumer;
@@ -40,14 +41,15 @@ public class DebeziumChangeConsumerTest {
 	private DatabaseEvent mockDatabaseEvent;
 	
 	@Mock
-	private OpenmrsDebeziumEngine mockEngine;
+	private AdministrationService mockAdminService;
 	
 	@Before
 	public void setup() {
 		PowerMockito.mockStatic(CustomFileOffsetBackingStore.class);
 		PowerMockito.mockStatic(OpenmrsDebeziumEngine.class);
+		PowerMockito.mockStatic(Utils.class);
 		MockitoAnnotations.initMocks(this);
-		consumer = new DebeziumChangeConsumer(mockListener, mockEngine);
+		consumer = new DebeziumChangeConsumer(mockListener);
 		Whitebox.setInternalState(consumer, "function", mockFunction);
 		Mockito.reset(mockListener);
 		Mockito.reset(mockFunction);
@@ -74,16 +76,17 @@ public class DebeziumChangeConsumerTest {
 	}
 	
 	@Test
-	public void accept_shouldDisableTheFileBackingStoreAndStopDebeziumEngineAndSetDisableToTrueWhenAnErrorOccurs() {
+	public void accept_shouldDisableTheFileBackingStoreAndDisableTheEngineAndSetDisableToTrueWhenAnErrorOccurs() {
 		Assert.assertFalse(Whitebox.getInternalState(consumer, "disabled"));
 		when(mockFunction.apply(mockChangeEvent)).thenThrow(new DebeziumException());
 		
 		consumer.accept(mockChangeEvent);
 		
 		Assert.assertTrue(Whitebox.getInternalState(consumer, "disabled"));
-		verify(mockEngine).stop();
 		PowerMockito.verifyStatic();
 		CustomFileOffsetBackingStore.disable();
+		PowerMockito.verifyStatic();
+		Utils.updateGlobalProperty(DebeziumConstants.GP_ENABLED, "false");
 	}
 	
 }
