@@ -24,7 +24,11 @@ final class DebeziumEngineManager {
 	protected synchronized static void start() {
 		
 		synchronized (DebeziumEngineManager.class) {
-			stop();
+			if (engine != null) {
+				log.info("OpenMRS debezium engine is already running");
+				return;
+			}
+			
 			AdministrationService adminService = Context.getAdministrationService();
 			if (!Boolean.valueOf(adminService.getGlobalProperty(GP_ENABLED))) {
 				log.info("Not starting debezium because it is disabled via the global property named: " + GP_ENABLED);
@@ -34,7 +38,7 @@ final class DebeziumEngineManager {
 			DatabaseEventListener listener = getRegisteredComponent(DB_EVENT_LISTENER_BEAN_NAME,
 			    DatabaseEventListener.class);
 			
-			log.info("Starting OpenMRS debezium engine after context refresh");
+			log.info("Starting OpenMRS debezium engine");
 			
 			//TODO support postgres i.e. add a GP to specify the connector class
 			boolean snapshotOnly = Utils.getSystemProperty(DebeziumConstants.SYS_PROP_SNAPSHOT) != null;
@@ -87,18 +91,35 @@ final class DebeziumEngineManager {
 	}
 	
 	/**
-	 * Stops the OpenMRS debezium engine
+	 * Stops the OpenMRS debezium engine asynchronously
 	 */
-	protected synchronized static void stop() {
+	protected synchronized static void stopAsync() {
+		doStop(false);
+	}
+	
+	/**
+	 * Stops the OpenMRS debezium engine and waits for it
+	 */
+	public synchronized static void stop() {
+		doStop(true);
+	}
+	
+	/**
+	 * Stops the OpenMRS debezium engine
+	 * 
+	 * @param wait if set to true the current thread will block until the debezium engine has been
+	 *            stopped otherwise it will not
+	 */
+	private synchronized static void doStop(boolean wait) {
 		
 		synchronized (DebeziumEngineManager.class) {
 			if (engine != null) {
 				log.info("Received call to stop OpenMRS debezium engine");
 				
-				engine.stop();
+				engine.stop(wait);
 				engine = null;
 			} else {
-				log.info("No running OpenMRS debezium engine found");
+				log.info("No running OpenMRS debezium engine found for stopping");
 			}
 		}
 		

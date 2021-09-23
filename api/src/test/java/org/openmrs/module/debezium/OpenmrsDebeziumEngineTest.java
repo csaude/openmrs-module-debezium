@@ -150,8 +150,7 @@ public class OpenmrsDebeziumEngineTest {
 	@After
 	public void tearDown() throws Exception {
 		log.info("Stopping OpenMRS test debezium engine");
-		engine.stop();
-		Thread.sleep(2000);
+		engine.stop(true);
 		log.info("Stopping MySQL container");
 		mysqlContainer.stop();
 		mysqlContainer.close();

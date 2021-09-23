@@ -59,7 +59,8 @@ public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord
 			log.error("An error was thrown by the listener while processing database event, stopping debezium engine", t);
 			
 			//TODO Send a notification to the admin
-			//Note that this GP update will trigger an engine stop by DebeziumGlobalPropertyListener 
+			DebeziumEngineManager.stopAsync();
+			
 			Utils.updateGlobalProperty(DebeziumConstants.GP_ENABLED, "false");
 		}
 		

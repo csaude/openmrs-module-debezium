@@ -3,6 +3,8 @@ package org.openmrs.module.debezium;
 import static io.debezium.engine.DebeziumEngine.create;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -62,14 +64,16 @@ public final class OpenmrsDebeziumEngine {
 	
 	/**
 	 * Stops the debezium engine
+	 * 
+	 * @param wait if set to true the current thread will block until the debezium engine has been *
+	 *            stopped otherwise it will not
 	 */
-	public synchronized void stop() {
+	public synchronized void stop(boolean wait) {
 		if (debeziumEngine != null) {
 			log.info("Starting task to close the debezium engine");
-			//Since this method is called from our ChangeEvent Consumer, we need to stop the engine in a separate thread
-			//so that the consumer's accept method can return and the task ends otherwise the code stopping the engine 
-			//hangs because it would be waiting for itself to complete which would be a deadlock
-			Executors.newSingleThreadExecutor().execute(() -> {
+			
+			CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+				
 				try {
 					log.info("Closing debezium engine...");
 					debeziumEngine.close();
@@ -89,7 +93,28 @@ public final class OpenmrsDebeziumEngine {
 						executor = null;
 					}
 				}
+				
 			});
+			
+			if (wait) {
+				if (log.isDebugEnabled()) {
+					log.debug("Waiting for debezium shutdown thread to terminate");
+				}
+				
+				try {
+					future.get();
+					
+					if (log.isDebugEnabled()) {
+						log.debug("Debezium engine shutdown thread has terminated");
+					}
+				}
+				catch (InterruptedException e) {
+					log.warn("Debezium engine shutdown thread interrupted while terminating");
+				}
+				catch (ExecutionException e) {
+					log.warn("Debezium engine shutdown thread encountered an error while terminating");
+				}
+			}
 		}
 	}
 	
