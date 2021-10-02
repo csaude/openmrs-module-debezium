@@ -9,13 +9,11 @@ import static org.openmrs.module.debezium.mysql.MysqlConfigPropertyConstants.CON
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
 import org.junit.Test;
 import org.openmrs.module.debezium.BaseDebeziumConfigTest;
 import org.openmrs.module.debezium.CustomFileOffsetBackingStore;
 
 import io.debezium.relational.history.FileDatabaseHistory;
-import io.debezium.relational.history.MemoryDatabaseHistory;
 
 public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 	
@@ -37,8 +35,6 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 	public void constructor_shouldSetSnapshotModeAndOffSetBackingStoreIfSnapShotIsSetToTrue() {
 		MySqlDebeziumConfig config = new MySqlDebeziumConfig(true, null, null);
 		assertEquals(MySqlSnapshotMode.INITIAL_ONLY, config.getSnapshotMode());
-		assertEquals(MemoryOffsetBackingStore.class, config.getOffsetStorageClass());
-		assertEquals(MemoryDatabaseHistory.class, config.getHistoryClass());
 	}
 	
 	@Test

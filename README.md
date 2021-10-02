@@ -64,16 +64,18 @@ binlog files without access to the actual OpenMRS DB data, please refer to [crea
 section from the debezium docs, you will need the created user account's credentials when configuring the module in the next 
 step. For a non-production deployment it's okay to use the root account instead of creating a separate account.
 
-#### Setting global Properties
+#### Setting global properties
 Navigate to the main admin settings page as mentioned below, 
 * From the main menu, click **Administration**
 * Under the **Maintenance** section, click on **Settings** and you should see a page like the screenshot below, please 
   make sure to read the description of each property carefully. If you created a separate database user the previous 
   step, use those credentials for the `Database User` and `Database Password` properties. If not set, the module will 
   default to the credentials defined in the OpenMRS runtimes properties file.
+  
   >[**WARNING!!**] DO NOT change the values of `Mysql History File Filename` and `Offset Storage File Filename` properties 
   >after debezium has written to them the first time, if you move them to another location be sure to update these global
   >property values and you **MUST** do it while the module is stopped or engine is disabled.
+
 
 ![Module Settings](docs/settings_screenshot.png)
 

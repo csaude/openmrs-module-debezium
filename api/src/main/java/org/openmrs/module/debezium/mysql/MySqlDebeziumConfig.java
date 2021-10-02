@@ -16,7 +16,6 @@ import org.openmrs.module.debezium.SnapshotMode;
 import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.relational.history.DatabaseHistory;
 import io.debezium.relational.history.FileDatabaseHistory;
-import io.debezium.relational.history.MemoryDatabaseHistory;
 
 /**
  * Debezium configuration for the MySQL connector
@@ -41,10 +40,8 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig<MySqlConnector> {
 	private Set<String> tablesToExclude;
 	
 	public MySqlDebeziumConfig(boolean snapshotOnly, Set<String> tablesToInclude, Set<String> tablesToExclude) {
-		super(snapshotOnly);
 		if (snapshotOnly) {
 			snapshotMode = MySqlSnapshotMode.INITIAL_ONLY;
-			historyClass = MemoryDatabaseHistory.class;
 		}
 		
 		this.tablesToInclude = tablesToInclude;

@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
-import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
 import org.apache.kafka.connect.storage.OffsetBackingStore;
 
 import io.debezium.connector.common.RelationalBaseSourceConnector;
@@ -32,12 +31,6 @@ public abstract class BaseDebeziumConfig<T extends RelationalBaseSourceConnector
 	private String databaseName;
 	
 	private Consumer<ChangeEvent<SourceRecord, SourceRecord>> consumer;
-	
-	public BaseDebeziumConfig(boolean snapshotOnly) {
-		if (snapshotOnly) {
-			offsetStorageClass = MemoryOffsetBackingStore.class;
-		}
-	}
 	
 	/**
 	 * Returns a {@link Properties} instance with the keys as the actual debezium property names and the
