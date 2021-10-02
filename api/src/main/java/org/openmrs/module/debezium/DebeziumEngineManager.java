@@ -93,7 +93,8 @@ final class DebeziumEngineManager {
 			if (snapshotOnly) {
 				File offsetFile = new File(config.getOffsetStorageFilename());
 				if (offsetFile.exists()) {
-					log.debug("Deleting existing offset file -> " + offsetFile.getAbsolutePath());
+					log.info("Deleting existing offset file -> " + offsetFile.getAbsolutePath());
+					
 					try {
 						FileUtils.forceDelete(offsetFile);
 					}
