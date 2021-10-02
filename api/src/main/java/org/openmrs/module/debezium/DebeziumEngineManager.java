@@ -4,7 +4,12 @@ import static org.openmrs.api.context.Context.getRegisteredComponent;
 import static org.openmrs.module.debezium.DebeziumConstants.DB_EVENT_LISTENER_BEAN_NAME;
 import static org.openmrs.module.debezium.DebeziumConstants.GP_ENABLED;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.openmrs.api.APIException;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.debezium.mysql.MySqlDebeziumConfig;
@@ -84,6 +89,19 @@ final class DebeziumEngineManager {
 			
 			engine = OpenmrsDebeziumEngine.getInstance();
 			config.setConsumer(new DebeziumChangeConsumer(listener));
+			
+			if (snapshotOnly) {
+				File offsetFile = new File(config.getOffsetStorageFilename());
+				if (offsetFile.exists()) {
+					log.debug("Deleting existing offset file -> " + offsetFile.getAbsolutePath());
+					try {
+						FileUtils.forceDelete(offsetFile);
+					}
+					catch (IOException e) {
+						throw new APIException("Failed to delete existing offset file");
+					}
+				}
+			}
 			
 			engine.start(config);
 		}
