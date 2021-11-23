@@ -39,7 +39,7 @@ properties,
 * `newState`: A map representation of the new state of the affected row where the map keys are thr column names
   while the map values are the column values, this property is always null for events triggered for a delete operation.
 
-### Build and Installation
+### Build and Install
 ```
 git clone https://github.com/FriendsInGlobalHealth/openmrs-module-debezium.git
 cd openmrs-module-debezium
