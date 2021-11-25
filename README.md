@@ -45,6 +45,7 @@ git clone https://github.com/FriendsInGlobalHealth/openmrs-module-debezium.git
 cd openmrs-module-debezium
 mvn clean install
 ```
+Take the generated .omod file in the `omod/target` folder and install it in the central OpenMRS instance
 
 ### Configuration
 
@@ -67,10 +68,11 @@ step. For a non-production deployment it's okay to use the root account instead 
 #### Setting global properties
 Navigate to the main admin settings page as mentioned below, 
 * From the main menu, click **Administration**
-* Under the **Maintenance** section, click on **Settings** and you should see a page like the screenshot below, please 
-  make sure to read the description of each property carefully. If you created a separate database user the previous 
-  step, use those credentials for the `Database User` and `Database Password` properties. If not set, the module will 
-  default to the credentials defined in the OpenMRS runtimes properties file.
+* Under the **Maintenance** section, click on **Settings**, click on the **Debezium** link in the left panel, and you 
+  should see a page like the screenshot below, please make sure to read the description of each property carefully. 
+  If you created a separate database user the previous step, use those credentials for the `Database User` and `Database
+  Password` properties. If not set, the module will default to the credentials defined in the OpenMRS runtimes 
+  properties file.
   
   >[**WARNING!!**] DO NOT change the values of `Mysql History File Filename` and `Offset Storage File Filename` properties 
   >after debezium has written to them the first time, if you move them to another location be sure to update these global
@@ -79,6 +81,16 @@ Navigate to the main admin settings page as mentioned below,
 
 ![Module Settings](docs/settings_screenshot.png)
 
-#### Before Using The Module
+### Usage
+#### Creating and Registering A Listener For Change Events
+#### Initial Loading of Existing Data
+#### Consuming Incremental Change Events
+Note that when you first install the module and you do not perform initial loading of all existing rows, there would be 
+no recorded offset yet which implies that any database operations that may occur before you actually start the module's 
+debezium engine will not be sent to your registered change event listener, to avoid this you either need to start the 
+module's engine immediately and wait until one change event to be processed and an offset is recorded. Alternatively, 
+you need to 'force' the engine to record the initial offset by making a database insert or update or delete of a row in 
+one of the watched tables, ensure an offset is written to the file you configured for the **Offset Storage File Filename** 
+global property value.
 
 
