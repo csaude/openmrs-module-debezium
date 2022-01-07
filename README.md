@@ -82,8 +82,11 @@ Navigate to the main admin settings page as mentioned below,
 ![Module Settings](docs/settings_screenshot.png)
 
 ### Usage
+
 #### Creating and Registering A Listener For Change Events
+
 #### Initial Loading of Existing Data
+
 #### Consuming Incremental Change Events
 Note that when you first install the module and you do not perform initial loading of all existing rows, there would be 
 no recorded offset yet which implies that any database operations that may occur before you actually start the module's 
@@ -92,5 +95,13 @@ module's engine immediately and wait until one change event to be processed and 
 you need to 'force' the engine to record the initial offset by making a database insert or update or delete of a row in 
 one of the watched tables, ensure an offset is written to the file you configured for the **Offset Storage File Filename** 
 global property value.
+
+#### Starting And Stopping The Debezium Engine
+
+#### Backups
+It is highly recommended to back up the debezium history and offset files which can be useful in case they are lost or 
+get corrupted, i.e. the application can use a previously backed up offset file to resume from an earlier point in time 
+and move forward again without the need to re-run an initial loading.
+
 
 
