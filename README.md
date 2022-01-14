@@ -4,9 +4,16 @@ and notifies any configured listeners. The module is designed to implement the [
 Currently, the only monitored operations are row level inserts, updates and deletes.
 
 ### Technical Overview
-The module runs an embedded debezium engine and registers a single change event consumer with the engine, the consumer 
-gets notified of database changes which in turn notifies a single registered spring bean named `dbEventListener`
-implementing the `DatabaseEventListener` interface, the engine **WILL NOT** start if this spring bean is not found. 
+![#](docs/debezium_module.jpg)
+
+As shown in the diagram above, the module runs an embedded debezium engine and registers a single change event `Consumer` 
+with the engine, the consumer gets notified of database changes, it first runs the raw debezium `ChangeEvent` object 
+through a `Function` to convert it to a `DatabaseEvent` object before notifying a single registered spring bean named 
+`dbEventListener` implementing the `DatabaseEventListener` interface, the engine **WILL NOT** start if this spring 
+bean is not found. If any error is encountered during processing of the event be it in the listener, the engine is 
+stopped immediately, the admin is expected to address the root cause of the error and after that they can restart the 
+engine by setting the value of the global property named `debezium.engine.enabled` to true, the engine should resume 
+from the failed event before moving forward to the next. 
 
 The module can be run in 2 modes i.e. snapshot or incremental, you can toggle between the 2 modes via a system property 
 name `org.openmrs.module.debezium.snapshotOnly`. 
@@ -14,9 +21,9 @@ name `org.openmrs.module.debezium.snapshotOnly`.
 In snapshot mode the debezium engine runs through all monitored database tables, reads the rows one by one from each 
 table and emits a change event for each row.
 
-In incremental mode the debezium engine reads reads the MySQL binlogs and emits a change event for each source record 
-read from the binlogs one at a time and then notifies our event consumer, a change event can be a DB insert, update or 
-delete.
+In the incremental mode, the debezium engine reads the MySQL binary logs and emits a change event for each source record 
+read from the binary logs one at a time and then notifies our event consumer, a change event can be a DB insert, update 
+or delete.
 
 When module's change event consumer receives a change event, it generates a `DatabaseEvent` object with the following 
 properties,
@@ -26,11 +33,11 @@ properties,
 * `tableName`: The source database table of the affected row
 
 * `operation`: An enum value representing the database operation that triggered the event, possible values are `CREATE`, 
-`READ`, `UPDATE`, `DELETE`, all snapshots events have this field always set to `READ`
+  `READ`, `UPDATE`, `DELETE`, all snapshots events have this field always set to `READ`
 
-* `snapshot`: An enum value representing if the event is emitted during a snapshot run or incremental, possible values are
-`TRUE`, `FALSE`, `LAST`. For incremental events the value is set to `FALSE` while for snapshot events it is set to `TRUE`, 
-`LAST` is a special value assigned ONLY to the last snapshot event, this implies it's a snapshot event itself.
+* `snapshot`: An enum value representing if the event is emitted during a snapshot run or incremental, possible values 
+  are `TRUE`, `FALSE`, `LAST`. For incremental events the value is set to `FALSE` while for snapshot events it is set to 
+  `TRUE`, `LAST` is a special value assigned ONLY to the last snapshot event, this implies it's a snapshot event itself.
 
 * `previousState`: A map representation of the previous state of the affected row where the map keys are the column names 
   while the map values are the column values, this property is always null for events triggered for an insert operation 
@@ -49,21 +56,21 @@ Take the generated .omod file in the `omod/target` folder and install it in the 
 
 ### Configuration
 
-#### Setup MySQL binlog
+#### Setup MySQL binary log
 Because the module uses an embedded debezium engine, we need to first setup MySQL binary logging in
-the OpenMRS database, please refer to [enabling the binlog](https://debezium.io/documentation/reference/connectors/mysql.html#enable-mysql-binlog)
+the OpenMRS database, please refer to [enabling the binary log](https://debezium.io/documentation/reference/connectors/mysql.html#enable-mysql-binlog)
 section from the debezium docs.
 
 **DO NOT** set the `expire_logs_days` because you never want your logs to expire just in case the sync application is
 run for a while due to unforeseen circumstances
 
 #### Debezium user account
-By default, only the root account can access the binlog files therefore first we need to create a user account with the 
-required privileges which the debezium MySQL connector will use to read the MySQL binlogs. This is just a standard 
+By default, only the root account can access the binary log files therefore first we need to create a user account with 
+the required privileges which the debezium MySQL connector will use to read the MySQL binary logs. This is just a standard 
 practice in a production deployment so that the account is assigned just the privileges it needs to read the MySQL 
-binlog files without access to the actual OpenMRS DB data, please refer to [creating a user](https://debezium.io/documentation/reference/connectors/mysql.html#mysql-creating-user) 
-section from the debezium docs, you will need the created user account's credentials when configuring the module in the next 
-step. For a non-production deployment it's okay to use the root account instead of creating a separate account.
+binary log files without access to the actual OpenMRS DB data, please refer to [creating a user](https://debezium.io/documentation/reference/connectors/mysql.html#mysql-creating-user) 
+section from the debezium docs, you will need the created user account's credentials when configuring the module in the 
+next step. For a non-production deployment it's okay to use the root account instead of creating a separate account.
 
 #### Setting global properties
 Navigate to the main admin settings page as mentioned below, 
