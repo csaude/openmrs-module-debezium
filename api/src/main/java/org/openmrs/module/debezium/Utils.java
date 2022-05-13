@@ -1,5 +1,9 @@
 package org.openmrs.module.debezium;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
@@ -14,14 +18,15 @@ public class Utils {
 	
 	private static final Logger log = LoggerFactory.getLogger(Utils.class);
 	
+	private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+	
 	/**
-	 * Looks up the value of the system property with the specified name
+	 * Gets a formatted timestamp
 	 * 
-	 * @param propertyName the property name
-	 * @return the property value
+	 * @return the generated file name
 	 */
-	public static String getSystemProperty(String propertyName) {
-		return System.getProperty(propertyName);
+	public static String getCurrentTimestamp() {
+		return DATE_FORMATTER.format(new Date());
 	}
 	
 	/**

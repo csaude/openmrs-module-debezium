@@ -4,7 +4,12 @@ import static org.openmrs.api.context.Context.getRegisteredComponent;
 import static org.openmrs.module.debezium.DebeziumConstants.ENGINE_CONFIG_BEAN_NAME;
 import static org.openmrs.module.debezium.DebeziumConstants.GP_ENABLED;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.openmrs.api.APIException;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.debezium.mysql.MySqlDebeziumConfig;
@@ -37,9 +42,6 @@ final class DebeziumEngineManager {
 			}
 			
 			DebeziumEngineConfig engCfg = getRegisteredComponent(ENGINE_CONFIG_BEAN_NAME, DebeziumEngineConfig.class);
-			
-			//TODO support postgres i.e. add a GP to specify the connector class
-			engCfg.init();
 			
 			BaseDebeziumConfig config = new MySqlDebeziumConfig((MySqlSnapshotMode) engCfg.getSnapshotMode(),
 			        engCfg.getTablesToInclude(), engCfg.getTablesToExclude());
@@ -80,6 +82,33 @@ final class DebeziumEngineManager {
 			
 			engine = OpenmrsDebeziumEngine.getInstance();
 			config.setConsumer(new DebeziumChangeConsumer(engCfg.getEventListener()));
+			
+			//TODO Support postgres
+			if (engCfg.getSnapshotMode() == MySqlSnapshotMode.INITIAL
+			        || engCfg.getSnapshotMode() == MySqlSnapshotMode.INITIAL_ONLY) {
+				
+				File offsetFile = new File(config.getOffsetStorageFilename());
+				if (offsetFile.exists()) {
+					String bkpFilename = offsetFile.getName() + "." + Utils.getCurrentTimestamp();
+					File bkpOffsetFile = FileUtils.getFile(offsetFile.getParentFile(), bkpFilename);
+					
+					log.info("Backing up existing offset file at -> " + bkpOffsetFile.getAbsolutePath());
+					
+					try {
+						FileUtils.writeByteArrayToFile(bkpOffsetFile, FileUtils.readFileToByteArray(offsetFile));
+						
+						log.info("Deleting existing offset file -> " + offsetFile.getAbsolutePath());
+						
+						FileUtils.forceDelete(offsetFile);
+					}
+					catch (IOException e) {
+						throw new APIException("An error occurred", e);
+					}
+				}
+			}
+			
+			//TODO support postgres i.e. add a GP to specify the connector class
+			engCfg.init();
 			
 			log.info("Starting OpenMRS debezium engine");
 			
