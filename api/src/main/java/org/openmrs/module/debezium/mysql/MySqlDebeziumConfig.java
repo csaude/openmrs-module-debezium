@@ -39,11 +39,8 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig<MySqlConnector> {
 	
 	private Set<String> tablesToExclude;
 	
-	public MySqlDebeziumConfig(boolean snapshotOnly, Set<String> tablesToInclude, Set<String> tablesToExclude) {
-		if (snapshotOnly) {
-			snapshotMode = MySqlSnapshotMode.INITIAL_ONLY;
-		}
-		
+	public MySqlDebeziumConfig(MySqlSnapshotMode snapshotMode, Set<String> tablesToInclude, Set<String> tablesToExclude) {
+		this.snapshotMode = snapshotMode;
 		this.tablesToInclude = tablesToInclude;
 		this.tablesToExclude = tablesToExclude;
 	}

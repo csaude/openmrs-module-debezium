@@ -1,18 +1,14 @@
 package org.openmrs.module.debezium;
 
 import static org.openmrs.api.context.Context.getRegisteredComponent;
-import static org.openmrs.module.debezium.DebeziumConstants.DB_EVENT_LISTENER_BEAN_NAME;
+import static org.openmrs.module.debezium.DebeziumConstants.ENGINE_CONFIG_BEAN_NAME;
 import static org.openmrs.module.debezium.DebeziumConstants.GP_ENABLED;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.openmrs.api.APIException;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.debezium.mysql.MySqlDebeziumConfig;
+import org.openmrs.module.debezium.mysql.MySqlSnapshotMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,18 +36,13 @@ final class DebeziumEngineManager {
 				return;
 			}
 			
-			DatabaseEventListener listener = getRegisteredComponent(DB_EVENT_LISTENER_BEAN_NAME,
-			    DatabaseEventListener.class);
-			
-			log.info("Starting OpenMRS debezium engine");
+			DebeziumEngineConfig engCfg = getRegisteredComponent(ENGINE_CONFIG_BEAN_NAME, DebeziumEngineConfig.class);
 			
 			//TODO support postgres i.e. add a GP to specify the connector class
-			boolean snapshotOnly = Utils.getSystemProperty(DebeziumConstants.SYS_PROP_SNAPSHOT) != null;
+			engCfg.init();
 			
-			listener.init(snapshotOnly);
-			
-			BaseDebeziumConfig config = new MySqlDebeziumConfig(snapshotOnly, listener.getTablesToInclude(),
-			        listener.getTablesToExclude());
+			BaseDebeziumConfig config = new MySqlDebeziumConfig((MySqlSnapshotMode) engCfg.getSnapshotMode(),
+			        engCfg.getTablesToInclude(), engCfg.getTablesToExclude());
 			
 			String userGp = adminService.getGlobalProperty(DebeziumConstants.GP_USER);
 			if (StringUtils.isNotBlank(userGp)) {
@@ -88,21 +79,9 @@ final class DebeziumEngineManager {
 			config.setAdditionalConfigProperties();
 			
 			engine = OpenmrsDebeziumEngine.getInstance();
-			config.setConsumer(new DebeziumChangeConsumer(listener));
+			config.setConsumer(new DebeziumChangeConsumer(engCfg.getEventListener()));
 			
-			if (snapshotOnly) {
-				File offsetFile = new File(config.getOffsetStorageFilename());
-				if (offsetFile.exists()) {
-					log.info("Deleting existing offset file -> " + offsetFile.getAbsolutePath());
-					
-					try {
-						FileUtils.forceDelete(offsetFile);
-					}
-					catch (IOException e) {
-						throw new APIException("Failed to delete existing offset file");
-					}
-				}
-			}
+			log.info("Starting OpenMRS debezium engine");
 			
 			engine.start(config);
 		}
@@ -130,18 +109,14 @@ final class DebeziumEngineManager {
 	 *            stopped otherwise it will not
 	 */
 	private synchronized static void doStop(boolean wait) {
-		
-		synchronized (DebeziumEngineManager.class) {
-			if (engine != null) {
-				log.info("Received call to stop OpenMRS debezium engine");
-				
-				engine.stop(wait);
-				engine = null;
-			} else {
-				log.info("No running OpenMRS debezium engine found for stopping");
-			}
+		if (engine != null) {
+			log.info("Received call to stop OpenMRS debezium engine");
+			
+			engine.stop(wait);
+			engine = null;
+		} else {
+			log.info("No running OpenMRS debezium engine found for stopping");
 		}
-		
 	}
 	
 }

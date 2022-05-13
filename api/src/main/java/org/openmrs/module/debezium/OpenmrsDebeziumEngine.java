@@ -48,11 +48,11 @@ public final class OpenmrsDebeziumEngine {
 	public synchronized <T extends BaseDebeziumConfig> void start(T config) {
 		
 		if (debeziumEngine != null) {
-			log.info("OpenMRS debezium engine is already started");
+			log.info("Debezium engine is already started");
 			return;
 		}
 		
-		log.info("Starting OpenMRS debezium engine...");
+		log.info("Starting debezium engine...");
 		
 		debeziumEngine = create(Connect.class).using(config.getProperties()).notifying(config.getConsumer()).build();
 		

@@ -4,6 +4,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.junit.Assert;
@@ -32,7 +33,7 @@ public class DebeziumChangeConsumerTest {
 	private Function mockFunction;
 	
 	@Mock
-	private DatabaseEventListener mockListener;
+	private Consumer mockListener;
 	
 	@Mock
 	private ChangeEvent mockChangeEvent;
@@ -62,7 +63,7 @@ public class DebeziumChangeConsumerTest {
 		consumer.accept(mockChangeEvent);
 		
 		verify(mockFunction).apply(mockChangeEvent);
-		verify(mockListener).onEvent(mockDatabaseEvent);
+		verify(mockListener).accept(mockDatabaseEvent);
 	}
 	
 	@Test

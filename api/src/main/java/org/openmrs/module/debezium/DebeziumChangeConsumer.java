@@ -17,13 +17,13 @@ public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord
 	
 	private static final Logger log = LoggerFactory.getLogger(DebeziumChangeConsumer.class);
 	
-	private DatabaseEventListener listener;
+	private Consumer<DatabaseEvent> listener;
 	
 	private Function<ChangeEvent<SourceRecord, SourceRecord>, DatabaseEvent> function = new DbChangeToEventFunction();
 	
 	private boolean disabled = false;
 	
-	public DebeziumChangeConsumer(DatabaseEventListener listener) {
+	public DebeziumChangeConsumer(Consumer<DatabaseEvent> listener) {
 		this.listener = listener;
 	}
 	
@@ -46,7 +46,7 @@ public class DebeziumChangeConsumer implements Consumer<ChangeEvent<SourceRecord
 				log.debug("Notifying listener of the database event: " + dbEvent);
 			}
 			
-			listener.onEvent(dbEvent);
+			listener.accept(dbEvent);
 		}
 		catch (Throwable t) {
 			//TODO Do not disable in case of a snapshot event

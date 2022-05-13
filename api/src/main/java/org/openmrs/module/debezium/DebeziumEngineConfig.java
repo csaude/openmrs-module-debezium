@@ -1,28 +1,34 @@
 package org.openmrs.module.debezium;
 
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
- * A subclass of this interface will be notified of database change events, please pay detailed
- * attention to the javadocs on {@link #getTablesToExclude()} and {@link #getTablesToInclude()}
- * methods.
+ * A subclass of this interface provides configuration options for the debezium engine, please pay
+ * detailed attention to the javadocs on {@link #getTablesToExclude()} and
+ * {@link #getTablesToInclude()} methods.
  */
-public interface DatabaseEventListener {
+public interface DebeziumEngineConfig {
 	
 	/**
 	 * Called to allow a listener to initialize itself before the debezium engine is started
-	 * 
-	 * @param snapshotOnly specifies if the module running in snapshot only mode or not
 	 */
-	default void init(boolean snapshotOnly) {
+	default void init() {
 	}
 	
 	/**
-	 * Called whenever a database change is received
+	 * Gets the {@link SnapshotMode}
 	 *
-	 * @param e the DatabaseEvent object
+	 * @return SnapshotMode
 	 */
-	void onEvent(DatabaseEvent e);
+	SnapshotMode getSnapshotMode();
+	
+	/**
+	 * Gets the {@link Consumer} instance to be called whenever a database event is received.
+	 * 
+	 * @return a {@link Consumer} instance
+	 */
+	Consumer<DatabaseEvent> getEventListener();
 	
 	/**
 	 * Returns a set of table names with the changes to capture, the module does not capture changes in

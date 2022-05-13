@@ -3,6 +3,7 @@ package org.openmrs.module.debezium.mysql;
 import static java.util.Arrays.stream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.openmrs.module.debezium.mysql.MySqlSnapshotMode.SCHEMA_ONLY;
 import static org.openmrs.module.debezium.mysql.MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_EXCLUDE_LIST;
 import static org.openmrs.module.debezium.mysql.MysqlConfigPropertyConstants.CONNECTOR_PROP_TABLE_INCLUDE_LIST;
 
@@ -11,7 +12,6 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.openmrs.module.debezium.BaseDebeziumConfigTest;
-import org.openmrs.module.debezium.CustomFileOffsetBackingStore;
 
 import io.debezium.relational.history.FileDatabaseHistory;
 
@@ -32,22 +32,8 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 	private final String database = "testDb";
 	
 	@Test
-	public void constructor_shouldSetSnapshotModeAndOffSetBackingStoreIfSnapShotIsSetToTrue() {
-		MySqlDebeziumConfig config = new MySqlDebeziumConfig(true, null, null);
-		assertEquals(MySqlSnapshotMode.INITIAL_ONLY, config.getSnapshotMode());
-	}
-	
-	@Test
-	public void constructor_shouldKeepDefaultSnapshotModeAndOffSetBackingStoreIfSnapShotIsSetToFalse() {
-		MySqlDebeziumConfig config = new MySqlDebeziumConfig(false, null, null);
-		assertEquals(MySqlSnapshotMode.SCHEMA_ONLY, config.getSnapshotMode());
-		assertEquals(CustomFileOffsetBackingStore.class, config.getOffsetStorageClass());
-		assertEquals(FileDatabaseHistory.class, config.getHistoryClass());
-	}
-	
-	@Test
 	public void getProperties_shouldReturnTheMySqlProperties() {
-		MySqlDebeziumConfig config = new MySqlDebeziumConfig(false,
+		MySqlDebeziumConfig config = new MySqlDebeziumConfig(SCHEMA_ONLY,
 		        stream(tablesToInclude.split(",")).collect(Collectors.toSet()), null);
 		setCoreProperties(config);
 		config.setDatabaseName(database);
@@ -75,7 +61,7 @@ public class MySqlDebeziumConfigTest extends BaseDebeziumConfigTest {
 	
 	@Test
 	public void getProperties_shouldReturnTheMySqlPropertiesWithTablesToExclude() {
-		MySqlDebeziumConfig config = new MySqlDebeziumConfig(false, null,
+		MySqlDebeziumConfig config = new MySqlDebeziumConfig(SCHEMA_ONLY, null,
 		        stream(tablesToExclude.split(",")).collect(Collectors.toSet()));
 		setCoreProperties(config);
 		config.setDatabaseName(database);

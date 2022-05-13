@@ -1,5 +1,6 @@
 package org.openmrs.module.debezium;
 
+import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -8,13 +9,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.apache.kafka.connect.source.SourceRecord;
@@ -66,7 +66,7 @@ public class OpenmrsDebeziumEngineTest {
 	
 	public class TestDebeziumChangeConsumer extends DebeziumChangeConsumer {
 		
-		public TestDebeziumChangeConsumer(DatabaseEventListener listener) {
+		public TestDebeziumChangeConsumer(Consumer<DatabaseEvent> listener) {
 			super(listener);
 		}
 		
@@ -108,10 +108,9 @@ public class OpenmrsDebeziumEngineTest {
 	}
 	
 	private void startEngine() throws Exception {
-		log.info("Starting OpenMRS test debezium engine");
+		firstEventLatch = new CountDownLatch(1);
 		engine = OpenmrsDebeziumEngine.getInstance();
-		MySqlDebeziumConfig config = new MySqlDebeziumConfig(false, Collections.singleton("location"), null);
-		config.setSnapshotMode(MySqlSnapshotMode.INITIAL);
+		MySqlDebeziumConfig config = new MySqlDebeziumConfig(MySqlSnapshotMode.INITIAL, singleton("location"), null);
 		config.setOffsetStorageClass(MemoryOffsetBackingStore.class);
 		config.setHistoryClass(MemoryDatabaseHistory.class);
 		config.setHost(mysqlContainer.getHost());
@@ -120,35 +119,18 @@ public class OpenmrsDebeziumEngineTest {
 		config.setUsername("root");
 		config.setPassword(PASSWORD);
 		events = new ArrayList();
-		config.setConsumer(new TestDebeziumChangeConsumer(new DatabaseEventListener() {
-			
-			@Override
-			public void onEvent(DatabaseEvent e) {
-				events.add(e);
-			}
-			
-			@Override
-			public Set<String> getTablesToInclude() {
-				return null;
-			}
-			
-			@Override
-			public Set<String> getTablesToExclude() {
-				return null;
-			}
-			
-		}));
+		config.setConsumer(new TestDebeziumChangeConsumer(e -> events.add(e)));
 		
+		log.info("Starting OpenMRS test debezium engine");
 		engine.start(config);
-		firstEventLatch = new CountDownLatch(1);
-		firstEventLatch.await(60, TimeUnit.SECONDS);
+		firstEventLatch.await(45, TimeUnit.SECONDS);
 		if (firstEventLatch.getCount() > 0) {
 			Assert.fail("Expected First event not received");
 		}
 	}
 	
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		log.info("Stopping OpenMRS test debezium engine");
 		engine.stop(true);
 		log.info("Stopping MySQL container");
@@ -158,7 +140,7 @@ public class OpenmrsDebeziumEngineTest {
 	
 	private void waitForEvents() throws Exception {
 		log.info("Waiting for events...");
-		eventsLatch.await(30, TimeUnit.SECONDS);
+		eventsLatch.await(15, TimeUnit.SECONDS);
 	}
 	
 	@Test

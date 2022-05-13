@@ -4,7 +4,7 @@ public class DebeziumConstants {
 	
 	public final static String MODULE_ID = "debezium";
 	
-	public final static String DB_EVENT_LISTENER_BEAN_NAME = "dbEventListener";
+	public final static String ENGINE_CONFIG_BEAN_NAME = "debeziumEngineConfig";
 	
 	public final static String PROP_DB_URL = "connection.url";
 	
@@ -25,7 +25,5 @@ public class DebeziumConstants {
 	public final static String GP_SNAPSHOT_LOCK_MODE = MODULE_ID + ".mysql.snapshot.locking.mode";
 	
 	public final static String GP_SSL_MODE = MODULE_ID + ".mysql.database.ssl.mode";
-	
-	protected static final String SYS_PROP_SNAPSHOT = "org.openmrs.module.debezium.snapshotOnly";
 	
 }
