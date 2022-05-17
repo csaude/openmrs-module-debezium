@@ -9,19 +9,19 @@ Currently, the only monitored operations are row level inserts, updates and dele
 As shown in the diagram above, the module runs an embedded debezium engine and registers a single change event `Consumer` 
 with the engine, the consumer gets notified of database changes, it first runs the raw debezium `ChangeEvent` object 
 through a `Function` to convert it to a `DatabaseEvent` object before notifying a single registered spring bean named 
-`dbEventListener` implementing the `DatabaseEventListener` interface, the engine **WILL NOT** start if this spring 
+`debeziumEngineConfig` implementing the `DebeziumEngineConfig` interface, the engine **WILL NOT** start if this spring 
 bean is not found. If any error is encountered during processing of the event be it in the listener, the engine is 
 stopped immediately, the admin is expected to address the root cause of the error and after that they can restart the 
 engine by setting the value of the global property named `debezium.engine.enabled` to true, the engine should resume 
 from the failed event before moving forward to the next. 
 
-The module can be run in 2 modes i.e. snapshot or incremental, you can toggle between the 2 modes via a system property 
-name `org.openmrs.module.debezium.snapshotOnly`. 
+The module can be configured to load all existing rows in the databases from all monitored tables, Debezium supports 
+various snapshot modes as documented [here](https://debezium.io/documentation/reference/1.6/connectors/mysql.html#mysql-property-snapshot-mode)
 
-In snapshot mode the debezium engine runs through all monitored database tables, reads the rows one by one from each 
+In a snapshot mode the debezium engine runs through all monitored database tables, reads the rows one by one from each 
 table and emits a change event for each row.
 
-In the incremental mode, the debezium engine reads the MySQL binary logs and emits a change event for each source record 
+In an incremental mode, the debezium engine reads the MySQL binary logs and emits a change event for each source record 
 read from the binary logs one at a time and then notifies our event consumer, a change event can be a DB insert, update 
 or delete.
 
