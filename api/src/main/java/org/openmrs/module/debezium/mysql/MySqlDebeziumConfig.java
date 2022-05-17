@@ -25,13 +25,13 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig<MySqlConnector> {
 	//Engine properties
 	private Class<MySqlConnector> connectorClass = MySqlConnector.class;
 	
-	private SnapshotMode snapshotMode = MySqlSnapshotMode.SCHEMA_ONLY;
-	
-	private MySqlSnapshotLockMode snapshotLockMode = MySqlSnapshotLockMode.EXTENDED;
+	private MySqlSnapshotLockMode snapshotLockMode = MySqlSnapshotLockMode.MINIMAL;
 	
 	private MySqlSslMode sslMode = MySqlSslMode.PREFERRED;
 	
 	private Class<? extends DatabaseHistory> historyClass = FileDatabaseHistory.class;
+	
+	private SnapshotMode snapshotMode;
 	
 	private String historyFilename;
 	
