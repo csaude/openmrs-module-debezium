@@ -107,6 +107,8 @@ final class DebeziumEngineManager {
 				}
 			}
 			
+			CustomFileOffsetBackingStore.reset();
+			
 			//TODO support postgres i.e. add a GP to specify the connector class
 			engCfg.init();
 			

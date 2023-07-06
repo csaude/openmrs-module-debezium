@@ -15,11 +15,21 @@ public class CustomFileOffsetBackingStore extends FileOffsetBackingStore {
 	
 	private static boolean disabled = false;
 	
+	/**
+	 * Disables offset storage
+	 */
 	public static void disable() {
 		disabled = true;
 		if (log.isDebugEnabled()) {
 			log.debug("Disabled saving of offsets");
 		}
+	}
+	
+	/**
+	 * Re-enables offset storage
+	 */
+	public static void reset() {
+		disabled = false;
 	}
 	
 	/**
