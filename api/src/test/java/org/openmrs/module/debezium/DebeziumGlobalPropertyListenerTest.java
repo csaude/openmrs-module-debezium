@@ -40,28 +40,28 @@ public class DebeziumGlobalPropertyListenerTest {
 	@Test
 	public void globalPropertyChanged_shouldStartTheDebeziumEngineIfThePropertyValueIsSetToTrue() {
 		listener.globalPropertyChanged(new GlobalProperty(GP_ENABLED, "true"));
-		PowerMockito.verifyStatic();
+		PowerMockito.verifyStatic(DebeziumEngineManager.class);
 		DebeziumEngineManager.start();
 	}
 	
 	@Test
 	public void globalPropertyChanged_shouldStartTheDebeziumEngineIfThePropertyValueIsSetToTrueIngoringCase() {
 		listener.globalPropertyChanged(new GlobalProperty(GP_ENABLED, "TRUE"));
-		PowerMockito.verifyStatic();
+		PowerMockito.verifyStatic(DebeziumEngineManager.class);
 		DebeziumEngineManager.start();
 	}
 	
 	@Test
 	public void globalPropertyChanged_shouldStopTheDebeziumEngineIfThePropertyValueIsNotSetToTrue() {
 		listener.globalPropertyChanged(new GlobalProperty(GP_ENABLED, "false"));
-		PowerMockito.verifyStatic();
+		PowerMockito.verifyStatic(DebeziumEngineManager.class);
 		DebeziumEngineManager.stop();
 	}
 	
 	@Test
 	public void globalPropertyDeleted_shouldStopTheDebeziumEngine() {
 		listener.globalPropertyDeleted(GP_ENABLED);
-		PowerMockito.verifyStatic();
+		PowerMockito.verifyStatic(DebeziumEngineManager.class);
 		DebeziumEngineManager.stop();
 	}
 	

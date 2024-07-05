@@ -41,9 +41,6 @@ public class DebeziumChangeConsumerTest {
 	@Mock
 	private DatabaseEvent mockDatabaseEvent;
 	
-	@Mock
-	private AdministrationService mockAdminService;
-	
 	@Before
 	public void setup() {
 		PowerMockito.mockStatic(CustomFileOffsetBackingStore.class);
@@ -84,9 +81,9 @@ public class DebeziumChangeConsumerTest {
 		consumer.accept(mockChangeEvent);
 		
 		Assert.assertTrue(Whitebox.getInternalState(consumer, "disabled"));
-		PowerMockito.verifyStatic();
+		PowerMockito.verifyStatic(CustomFileOffsetBackingStore.class);
 		CustomFileOffsetBackingStore.disable();
-		PowerMockito.verifyStatic();
+		PowerMockito.verifyStatic(CustomFileOffsetBackingStore.class);
 		Utils.updateGlobalProperty(DebeziumConstants.GP_ENABLED, "false");
 	}
 	
