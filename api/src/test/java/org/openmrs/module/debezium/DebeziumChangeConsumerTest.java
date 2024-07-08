@@ -14,8 +14,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.openmrs.api.AdministrationService;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
@@ -25,6 +25,7 @@ import io.debezium.engine.ChangeEvent;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ CustomFileOffsetBackingStore.class, OpenmrsDebeziumEngine.class, Utils.class })
+@PowerMockIgnore("javax.management.*")
 public class DebeziumChangeConsumerTest {
 	
 	private DebeziumChangeConsumer consumer;
@@ -83,7 +84,7 @@ public class DebeziumChangeConsumerTest {
 		Assert.assertTrue(Whitebox.getInternalState(consumer, "disabled"));
 		PowerMockito.verifyStatic(CustomFileOffsetBackingStore.class);
 		CustomFileOffsetBackingStore.disable();
-		PowerMockito.verifyStatic(CustomFileOffsetBackingStore.class);
+		PowerMockito.verifyStatic(Utils.class);
 		Utils.updateGlobalProperty(DebeziumConstants.GP_ENABLED, "false");
 	}
 	
