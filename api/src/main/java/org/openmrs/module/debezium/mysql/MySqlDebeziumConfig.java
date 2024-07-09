@@ -14,8 +14,8 @@ import org.openmrs.module.debezium.DebeziumConstants;
 import org.openmrs.module.debezium.SnapshotMode;
 
 import io.debezium.connector.mysql.MySqlConnector;
-import io.debezium.relational.history.DatabaseHistory;
-import io.debezium.relational.history.FileDatabaseHistory;
+import io.debezium.relational.history.SchemaHistory;
+import io.debezium.storage.file.history.FileSchemaHistory;
 
 /**
  * Debezium configuration for the MySQL connector
@@ -29,7 +29,7 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig<MySqlConnector> {
 	
 	private MySqlSslMode sslMode = MySqlSslMode.PREFERRED;
 	
-	private Class<? extends DatabaseHistory> historyClass = FileDatabaseHistory.class;
+	private Class<? extends SchemaHistory> historyClass = FileSchemaHistory.class;
 	
 	private SnapshotMode snapshotMode;
 	
@@ -55,7 +55,7 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig<MySqlConnector> {
 		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES, "false");
 		//props.setProperty("max.batch.size", "1");
 		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_CLASS, getHistoryClass().getName());
-		if (FileDatabaseHistory.class.equals(getHistoryClass())) {
+		if (FileSchemaHistory.class.equals(getHistoryClass())) {
 			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE, getHistoryFilename());
 		}
 		
@@ -144,7 +144,7 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig<MySqlConnector> {
 	 *
 	 * @return the historyClass
 	 */
-	public Class<? extends DatabaseHistory> getHistoryClass() {
+	public Class<? extends SchemaHistory> getHistoryClass() {
 		return historyClass;
 	}
 	
@@ -153,7 +153,7 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig<MySqlConnector> {
 	 *
 	 * @param historyClass the historyClass to set
 	 */
-	public void setHistoryClass(Class<? extends DatabaseHistory> historyClass) {
+	public void setHistoryClass(Class<? extends SchemaHistory> historyClass) {
 		this.historyClass = historyClass;
 	}
 	

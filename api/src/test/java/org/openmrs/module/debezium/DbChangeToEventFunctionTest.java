@@ -53,6 +53,11 @@ public class DbChangeToEventFunctionTest {
 		public String destination() {
 			return null;
 		}
+		
+		@Override
+		public Integer partition() {
+			return null;
+		}
 	}
 	
 	private ConnectSchema createSchema(List<Field> fields) {
