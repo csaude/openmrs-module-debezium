@@ -1,8 +1,12 @@
 package org.openmrs.module.debezium;
 
+import org.apache.kafka.connect.json.JsonConverter;
+import org.apache.kafka.connect.json.JsonConverterConfig;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
 
 /**
  * Custom {@link FileOffsetBackingStore} that only saves the offset if no exception was encountered
@@ -14,6 +18,14 @@ public class CustomFileOffsetBackingStore extends FileOffsetBackingStore {
 	protected static final Logger log = LoggerFactory.getLogger(CustomFileOffsetBackingStore.class);
 	
 	private static boolean disabled = false;
+	
+	private static final JsonConverter KEY_CONVERTER = new JsonConverter();
+	
+	public CustomFileOffsetBackingStore() {
+		//super(KEY_CONVERTER);
+		super();
+		KEY_CONVERTER.configure(Collections.singletonMap(JsonConverterConfig.SCHEMAS_ENABLE_CONFIG, "false"), true);
+	}
 	
 	/**
 	 * Disables offset storage
