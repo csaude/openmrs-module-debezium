@@ -23,7 +23,7 @@ public class CustomFileOffsetBackingStore extends FileOffsetBackingStore {
 	
 	public CustomFileOffsetBackingStore() {
 		super(KEY_CONVERTER);
-        KEY_CONVERTER.configure(Collections.singletonMap(JsonConverterConfig.SCHEMAS_ENABLE_CONFIG, "false"), true);
+		KEY_CONVERTER.configure(Collections.singletonMap(JsonConverterConfig.SCHEMAS_ENABLE_CONFIG, "false"), true);
 	}
 	
 	/**
