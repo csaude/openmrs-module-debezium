@@ -12,6 +12,8 @@ public abstract class BaseDebeziumConfigTest {
 	
 	protected final String storageFilename = "./offset.txt";
 	
+	protected final Long serverId = 3L;
+	
 	protected final String host = "localhost";
 	
 	protected final Integer port = 3306;
@@ -25,6 +27,7 @@ public abstract class BaseDebeziumConfigTest {
 	protected void setCoreProperties(BaseDebeziumConfig config) {
 		config.setOffsetStorageClass(CustomFileOffsetBackingStore.class);
 		config.setOffsetStorageFilename(storageFilename);
+		config.setServerId(serverId);
 		config.setHost(host);
 		config.setPort(port);
 		config.setUsername(username);
@@ -35,8 +38,7 @@ public abstract class BaseDebeziumConfigTest {
 	protected void assertCoreProperties(Properties props, int expectedCount) {
 		assertEquals(expectedCount, props.size());
 		assertEquals(ConfigPropertyConstants.ENGINE_DEFAULT_NAME, props.get(ConfigPropertyConstants.ENGINE_PROP_NAME));
-		assertEquals(ConfigPropertyConstants.ENGINE_DEFAULT_DB_SERVER_NAME,
-		    props.get(ConfigPropertyConstants.ENGINE_PROP_DB_SERVER_NAME));
+		assertEquals(serverId.toString(), props.get(ConfigPropertyConstants.ENGINE_PROP_DB_SERVER_ID));
 		assertEquals(MySqlConnector.class.getName(), props.get(ConfigPropertyConstants.ENGINE_PROP_CONNECT_CLASS));
 		assertEquals(CustomFileOffsetBackingStore.class.getName(),
 		    props.get(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_STORAGE_CLASS));

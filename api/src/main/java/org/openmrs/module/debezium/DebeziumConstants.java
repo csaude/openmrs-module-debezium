@@ -14,6 +14,8 @@ public class DebeziumConstants {
 	
 	public final static String GP_ENABLED = MODULE_ID + ".engine.enabled";
 	
+	public final static String GP_DB_SERVER_ID = MODULE_ID + ".database.server.id";
+	
 	public final static String GP_USER = MODULE_ID + ".database.user";
 	
 	public final static String GP_PASSWORD = MODULE_ID + ".database.password";

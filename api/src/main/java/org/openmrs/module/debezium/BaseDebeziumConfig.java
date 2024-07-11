@@ -20,6 +20,8 @@ public abstract class BaseDebeziumConfig<T extends RelationalBaseSourceConnector
 	private String offsetStorageFilename;
 	
 	//Connector properties
+	private Long serverId;
+	
 	private String host;
 	
 	private Integer port;
@@ -41,8 +43,7 @@ public abstract class BaseDebeziumConfig<T extends RelationalBaseSourceConnector
 	public Properties getProperties() {
 		final Properties props = new Properties();
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_NAME, ConfigPropertyConstants.ENGINE_DEFAULT_NAME);
-		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_DB_SERVER_NAME,
-		    ConfigPropertyConstants.ENGINE_DEFAULT_DB_SERVER_NAME);
+		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_DB_SERVER_ID, getServerId().toString());
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_CONNECT_CLASS, getConnectorClass().getName());
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_STORAGE_CLASS, getOffsetStorageClass().getName());
 		if (FileOffsetBackingStore.class.isAssignableFrom(getOffsetStorageClass())) {
@@ -123,6 +124,24 @@ public abstract class BaseDebeziumConfig<T extends RelationalBaseSourceConnector
 	 */
 	public void setOffsetStorageFilename(String offsetStorageFilename) {
 		this.offsetStorageFilename = offsetStorageFilename;
+	}
+	
+	/**
+	 * Gets the serverId
+	 *
+	 * @return the serverId
+	 */
+	public Long getServerId() {
+		return serverId;
+	}
+	
+	/**
+	 * Sets the serverId
+	 *
+	 * @param serverId the serverId to set
+	 */
+	public void setServerId(Long serverId) {
+		this.serverId = serverId;
 	}
 	
 	/**
