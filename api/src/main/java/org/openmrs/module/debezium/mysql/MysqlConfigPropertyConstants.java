@@ -2,9 +2,9 @@ package org.openmrs.module.debezium.mysql;
 
 public class MysqlConfigPropertyConstants {
 	
-	protected static final String CONNECTOR_PROP_HISTORY_CLASS = "database.history";
+	protected static final String CONNECTOR_PROP_HISTORY_CLASS = "schema.history.internal";
 	
-	protected static final String CONNECTOR_PROP_HISTORY_FILE = "database.history.file.filename";
+	protected static final String CONNECTOR_PROP_HISTORY_FILE = "schema.history.internal.file.filename";
 	
 	protected static final String CONNECTOR_PROP_DB_SNAPSHOT_LOCKING_MODE = "snapshot.locking.mode";
 	
