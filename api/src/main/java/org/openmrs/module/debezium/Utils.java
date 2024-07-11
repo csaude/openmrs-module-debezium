@@ -1,5 +1,7 @@
 package org.openmrs.module.debezium;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -60,6 +62,59 @@ public class Utils {
 			finally {
 				Context.closeSession();
 			}
+		}
+	}
+	
+	/**
+	 * Sets the value of the specified field on the specified object.
+	 *
+	 * @param object the object
+	 * @param field the field object
+	 * @param value the value to set
+	 */
+	public static void setFieldValue(Object object, Field field, Object value) {
+		boolean isAccessible = field.isAccessible();
+		
+		try {
+			if (!field.isAccessible()) {
+				field.setAccessible(true);
+			}
+			
+			field.set(object, value);
+		}
+		catch (Exception e) {
+			throw new RuntimeException("Failed to set property " + field, e);
+		}
+		finally {
+			field.setAccessible(isAccessible);
+		}
+	}
+	
+	/**
+	 * Invokes the method represented by the specified name on the specified object with the specified
+	 * arguments.
+	 *
+	 * @param object the object
+	 * @param method the method
+	 * @param args the arguments to pass to the method
+	 */
+	public static Object invokeMethod(Object object, Method method, Object... args) {
+		boolean isAccessible = method.isBridge();
+		
+		try {
+			if (!method.canAccess(object)) {
+				method.setAccessible(true);
+			}
+			
+			return method.invoke(object, args);
+		}
+		catch (Exception e) {
+			final String m = "Failed to invoke method " + method.getName() + " on object of type "
+			        + object.getClass().getName();
+			throw new RuntimeException(m, e);
+		}
+		finally {
+			method.setAccessible(isAccessible);
 		}
 	}
 	
