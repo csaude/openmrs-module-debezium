@@ -1,5 +1,7 @@
 package org.openmrs.module.debezium;
 
+import static org.openmrs.module.debezium.ConfigPropertyConstants.ENGINE_DEFAULT_TOPIC_PREFIX;
+
 import java.util.Properties;
 import java.util.function.Consumer;
 
@@ -43,6 +45,7 @@ public abstract class BaseDebeziumConfig<T extends RelationalBaseSourceConnector
 	public Properties getProperties() {
 		final Properties props = new Properties();
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_NAME, ConfigPropertyConstants.ENGINE_DEFAULT_NAME);
+		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_TOPIC_PREFIX, ENGINE_DEFAULT_TOPIC_PREFIX);
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_DB_SERVER_ID, getServerId().toString());
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_CONNECT_CLASS, getConnectorClass().getName());
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_STORAGE_CLASS, getOffsetStorageClass().getName());
