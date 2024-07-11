@@ -16,6 +16,18 @@ import org.openmrs.api.impl.ConceptServiceImpl;
 public class UtilsTest {
 	
 	@Test
+	public void getFieldValue_shouldGetTheFieldValue() throws Exception {
+		Person person = new Person();
+		Field field = Person.class.getDeclaredField("gender");
+		assertFalse(field.canAccess(person));
+		final String gender = "M";
+		Person msg = new Person();
+		msg.setGender(gender);
+		assertEquals(gender, Utils.getFieldValue(msg, field));
+		assertFalse(field.canAccess(person));
+	}
+	
+	@Test
 	public void setFieldValue_shouldSetTheFieldValue() throws Exception {
 		Person person = new Person();
 		Field field = Person.class.getDeclaredField("gender");

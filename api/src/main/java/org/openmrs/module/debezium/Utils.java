@@ -66,6 +66,32 @@ public class Utils {
 	}
 	
 	/**
+	 * Gets the value of the specified field on the specified object.
+	 *
+	 * @param object the object
+	 * @param field the field object
+	 * @return the property value
+	 * @param <T>
+	 */
+	public static <T> T getFieldValue(Object object, Field field) {
+		boolean isAccessible = field.canAccess(object);
+		
+		try {
+			if (!field.canAccess(object)) {
+				field.setAccessible(true);
+			}
+			
+			return (T) field.get(object);
+		}
+		catch (Exception e) {
+			throw new RuntimeException("Failed to get the value of the property " + field, e);
+		}
+		finally {
+			field.setAccessible(isAccessible);
+		}
+	}
+	
+	/**
 	 * Sets the value of the specified field on the specified object.
 	 *
 	 * @param object the object
@@ -73,10 +99,10 @@ public class Utils {
 	 * @param value the value to set
 	 */
 	public static void setFieldValue(Object object, Field field, Object value) {
-		boolean isAccessible = field.isAccessible();
+		boolean isAccessible = field.canAccess(object);
 		
 		try {
-			if (!field.isAccessible()) {
+			if (!field.canAccess(object)) {
 				field.setAccessible(true);
 			}
 			
