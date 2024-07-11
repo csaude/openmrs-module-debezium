@@ -42,10 +42,10 @@ final class DebeziumEngineManager {
 			}
 			
 			DebeziumEngineConfig engCfg = getRegisteredComponent(ENGINE_CONFIG_BEAN_NAME, DebeziumEngineConfig.class);
-			
 			BaseDebeziumConfig config = new MySqlDebeziumConfig((MySqlSnapshotMode) engCfg.getSnapshotMode(),
 			        engCfg.getTablesToInclude(), engCfg.getTablesToExclude());
-			
+			Long serverId = Long.valueOf(adminService.getGlobalProperty(DebeziumConstants.GP_DB_SERVER_ID.trim()));
+			config.setServerId(serverId);
 			String userGp = adminService.getGlobalProperty(DebeziumConstants.GP_USER);
 			if (StringUtils.isNotBlank(userGp)) {
 				config.setUsername(userGp);

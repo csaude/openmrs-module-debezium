@@ -34,7 +34,7 @@ import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import io.debezium.engine.ChangeEvent;
-import io.debezium.relational.history.MemoryDatabaseHistory;
+import io.debezium.relational.history.MemorySchemaHistory;
 
 public class OpenmrsDebeziumEngineTest {
 	
@@ -112,7 +112,7 @@ public class OpenmrsDebeziumEngineTest {
 		engine = OpenmrsDebeziumEngine.getInstance();
 		MySqlDebeziumConfig config = new MySqlDebeziumConfig(MySqlSnapshotMode.INITIAL, singleton("location"), null);
 		config.setOffsetStorageClass(MemoryOffsetBackingStore.class);
-		config.setHistoryClass(MemoryDatabaseHistory.class);
+		config.setHistoryClass(MemorySchemaHistory.class);
 		config.setHost(mysqlContainer.getHost());
 		config.setPort(MYSQL_PORT);
 		config.setDatabaseName(DB_NAME);
