@@ -4,7 +4,7 @@ public class ConfigPropertyConstants {
 	
 	protected static final String ENGINE_DEFAULT_NAME = "OpenMRS Debezium Engine";
 	
-	protected static final String ENGINE_DEFAULT_TOPIC_PREFIX = "openmrs-connector";
+	protected static final String ENGINE_DEFAULT_TOPIC_PREFIX = "OpenMRS";
 	
 	protected static final String ENGINE_PROP_NAME = "name";
 	

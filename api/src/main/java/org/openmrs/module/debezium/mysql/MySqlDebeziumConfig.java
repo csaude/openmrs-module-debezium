@@ -55,8 +55,12 @@ public class MySqlDebeziumConfig extends BaseDebeziumConfig<MySqlConnector> {
 		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_INCLUDE_SCHEMA_CHANGES, "false");
 		//props.setProperty("max.batch.size", "1");
 		props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_CLASS, getHistoryClass().getName());
+		props.setProperty("database.server.name", "OpenMRS_Debezium_Engine");
+		props.setProperty(MysqlConfigPropertyConstants.DATABASE_HISTORY, getHistoryClass().getName());
+		
 		if (FileDatabaseHistory.class.equals(getHistoryClass())) {
 			props.setProperty(MysqlConfigPropertyConstants.CONNECTOR_PROP_HISTORY_FILE, getHistoryFilename());
+			props.setProperty(MysqlConfigPropertyConstants.DATABASE_HISTORY_file, getHistoryFilename());
 		}
 		
 		if (CollectionUtils.isNotEmpty(getTablesToInclude())) {
