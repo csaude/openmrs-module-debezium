@@ -28,4 +28,6 @@ public class DebeziumConstants {
 	
 	public final static String GP_SSL_MODE = MODULE_ID + ".mysql.database.ssl.mode";
 	
+	public static final String OFFSET_PROP_FILE = "file";
+	
 }
