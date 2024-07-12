@@ -17,10 +17,9 @@
             <PatternLayout pattern="%p - %C{1}.%M(%L) |%d{ISO8601}| %m%n"/>
         </Console>
     </Appenders>
-
-    <Logger name="org.openmrs.module.debezium" level="DEBUG" />
     
     <Loggers>
+        <Logger name="org.openmrs.module.debezium" level="DEBUG" />
         <Root level="WARN">
             <AppenderRef ref="ConsoleAppender"/>
         </Root>

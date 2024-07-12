@@ -6,6 +6,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
@@ -142,6 +143,28 @@ public class Utils {
 		finally {
 			method.setAccessible(isAccessible);
 		}
+	}
+	
+	public static String[] getConnectionDetails() {
+		String jdbcUrl = Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_URL);
+		String host, portStr, dbName, hostPortDbNameStr;
+		if (jdbcUrl.indexOf("?") > -1) {
+			hostPortDbNameStr = StringUtils.substringBetween(jdbcUrl, "//", "?");
+		} else {
+			hostPortDbNameStr = StringUtils.substringAfter(jdbcUrl, "//");
+		}
+		
+		String[] hostPortDbName = StringUtils.split(hostPortDbNameStr, "/");
+		String[] hostAndPort = StringUtils.split(hostPortDbName[0], ":");
+		host = hostAndPort[0];
+		portStr = hostAndPort[1];
+		dbName = hostPortDbName[1];
+		
+		if (log.isDebugEnabled()) {
+			log.debug("Connection details -> host=" + host + ", port=" + portStr + ", DB=" + dbName);
+		}
+		
+		return new String[] { host, portStr, dbName };
 	}
 	
 }
