@@ -55,31 +55,12 @@ final class DebeziumEngineManager {
 				config.setPassword(Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_PASSWORD));
 			}
 			
-			String jdbcUrl = Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_URL);
-			String host, portStr, dbName, hostPortDbNameStr;
-			if (jdbcUrl.indexOf("?") > -1) {
-				hostPortDbNameStr = StringUtils.substringBetween(jdbcUrl, "//", "?");
-			} else {
-				hostPortDbNameStr = StringUtils.substringAfter(jdbcUrl, "//");
-			}
-			
-			String[] hostPortDbName = StringUtils.split(hostPortDbNameStr, "/");
-			String[] hostAndPort = StringUtils.split(hostPortDbName[0], ":");
-			host = hostAndPort[0];
-			portStr = hostAndPort[1];
-			dbName = hostPortDbName[1];
-			
-			if (log.isDebugEnabled()) {
-				log.debug("Connection details used by debezium -> host=" + host + ", port=" + portStr + ", DB=" + dbName);
-			}
-			
-			config.setHost(host);
-			config.setPort(Integer.valueOf(portStr));
-			config.setDatabaseName(dbName);
+			String[] creds = Utils.getConnectionDetails();
+			config.setHost(creds[0]);
+			config.setPort(Integer.valueOf(creds[1]));
+			config.setDatabaseName(creds[2]);
 			config.setOffsetStorageFilename(adminService.getGlobalProperty(DebeziumConstants.GP_OFFSET_STORAGE_FILE));
-			
 			config.setAdditionalConfigProperties();
-			
 			engine = OpenmrsDebeziumEngine.getInstance();
 			config.setConsumer(new DebeziumChangeConsumer(engCfg.getEventListener()));
 			

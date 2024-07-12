@@ -25,6 +25,13 @@
     </globalProperty>
 
     <globalProperty>
+        <property>${project.parent.artifactId}.database.server.id</property>
+        <description>
+            A required property that specifies the unique id of the database server.
+        </description>
+    </globalProperty>
+
+    <globalProperty>
         <property>${project.parent.artifactId}.database.user</property>
         <description>
             An optional database username for the user account debezium should use to connect to the database to capture
