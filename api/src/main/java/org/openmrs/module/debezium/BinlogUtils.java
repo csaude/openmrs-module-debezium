@@ -22,8 +22,7 @@ public class BinlogUtils {
 	 * @return BinaryLogClient
 	 */
 	public static BinaryLogClient createBinlogClient(BinlogPosition binlogPosition,
-	                                                 BinaryLogClient.EventListener eventListener,
-	                                                 BinaryLogClient.LifecycleListener lifecycleListener) {
+	        BinaryLogClient.EventListener eventListener, BinaryLogClient.LifecycleListener lifecycleListener) {
 		String username;
 		String password;
 		String userGp = Context.getAdministrationService().getGlobalProperty(DebeziumConstants.GP_USER);

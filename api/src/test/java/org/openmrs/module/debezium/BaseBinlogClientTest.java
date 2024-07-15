@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
@@ -18,6 +19,7 @@ import io.debezium.connector.binlog.BinlogStreamingChangeEventSource.BinlogPosit
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(BinlogUtils.class)
+@PowerMockIgnore("javax.management.*")
 public class BaseBinlogClientTest {
 	
 	@Mock
