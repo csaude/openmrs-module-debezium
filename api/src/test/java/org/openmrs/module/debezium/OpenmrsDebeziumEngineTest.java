@@ -111,6 +111,7 @@ public class OpenmrsDebeziumEngineTest {
 		firstEventLatch = new CountDownLatch(1);
 		engine = OpenmrsDebeziumEngine.getInstance();
 		MySqlDebeziumConfig config = new MySqlDebeziumConfig(MySqlSnapshotMode.INITIAL, singleton("location"), null);
+		config.setServerId(1L);
 		config.setOffsetStorageClass(MemoryOffsetBackingStore.class);
 		config.setHistoryClass(MemorySchemaHistory.class);
 		config.setHost(mysqlContainer.getHost());
