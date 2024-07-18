@@ -41,7 +41,7 @@
 
     <properties>
         <javaCompilerVersion>11</javaCompilerVersion>
-        <openmrsPlatformVersion>2.6.4</openmrsPlatformVersion>
+        <openmrsPlatformVersion>2.6.0</openmrsPlatformVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <debeziumVersion>2.7.0.Final</debeziumVersion>
         <testContainersVersion>1.15.3</testContainersVersion>
