@@ -17,5 +17,9 @@ public class MysqlConfigPropertyConstants {
 	protected static final String CONNECTOR_PROP_TABLE_INCLUDE_LIST = "table.include.list";
 	
 	protected static final String CONNECTOR_PROP_TABLE_EXCLUDE_LIST = "table.exclude.list";
+
+	protected static final String DATABASE_HISTORY = "database.history";
+
+	protected static final String DATABASE_HISTORY_file = "database.history.file.filename";
 	
 }
