@@ -2,14 +2,13 @@ package org.openmrs.module.debezium;
 
 import java.io.IOException;
 
+import io.debezium.connector.mysql.legacy.BinlogReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import com.github.shyiko.mysql.binlog.BinaryLogClient.AbstractLifecycleListener;
 import com.github.shyiko.mysql.binlog.BinaryLogClient.EventListener;
-
-import io.debezium.connector.binlog.BinlogStreamingChangeEventSource.BinlogPosition;
 
 /**
  * Base class for listeners for both binlog and client life cycle events
@@ -20,9 +19,9 @@ public abstract class BaseBinlogClient extends AbstractLifecycleListener impleme
 	
 	private BinaryLogClient client;
 	
-	protected BinlogPosition binlogPosition;
+	protected BinlogReader.BinlogPosition binlogPosition;
 	
-	public BaseBinlogClient(BinlogPosition binlogPosition) {
+	public BaseBinlogClient(BinlogReader.BinlogPosition binlogPosition) {
 		this.binlogPosition = binlogPosition;
 		client = BinlogUtils.createBinlogClient(binlogPosition, this, this);
 	}

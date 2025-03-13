@@ -4,26 +4,25 @@ import static com.github.shyiko.mysql.binlog.event.deserialization.EventDeserial
 import static com.github.shyiko.mysql.binlog.event.deserialization.EventDeserializer.CompatibilityMode.DATE_AND_TIME_AS_LONG;
 import static org.openmrs.module.debezium.DebeziumConstants.GP_DB_SERVER_ID;
 
+import io.debezium.connector.mysql.legacy.BinlogReader;
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.api.context.Context;
 
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import com.github.shyiko.mysql.binlog.event.deserialization.EventDeserializer;
 
-import io.debezium.connector.binlog.BinlogStreamingChangeEventSource.BinlogPosition;
-
 public class BinlogUtils {
 	
 	/**
 	 * Creates a {@link BinaryLogClient} instance to connect to the MySQL binlog at the filename and
-	 * position of the specified {@link BinlogPosition}
+	 * position of the specified {@link io.debezium.connector.mysql.legacy.BinlogReader.BinlogPosition}
 	 *
-	 * @param binlogPosition {@link BinlogPosition} instance
+	 * @param binlogPosition {@link io.debezium.connector.mysql.legacy.BinlogReader.BinlogPosition}
+	 *            instance
 	 * @return BinaryLogClient
 	 */
-	public static BinaryLogClient createBinlogClient(BinlogPosition binlogPosition,
-	                                                 BinaryLogClient.EventListener eventListener,
-	                                                 BinaryLogClient.LifecycleListener lifecycleListener) {
+	public static BinaryLogClient createBinlogClient(BinlogReader.BinlogPosition binlogPosition,
+	        BinaryLogClient.EventListener eventListener, BinaryLogClient.LifecycleListener lifecycleListener) {
 		String username;
 		String password;
 		String userGp = Context.getAdministrationService().getGlobalProperty(DebeziumConstants.GP_USER);
