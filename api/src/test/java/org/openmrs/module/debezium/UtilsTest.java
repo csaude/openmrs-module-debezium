@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.openmrs.ConceptName;
 import org.openmrs.Person;
 import org.openmrs.api.impl.ConceptServiceImpl;
+import org.openmrs.module.debezium.utils.Utils;
 
 public class UtilsTest {
 	

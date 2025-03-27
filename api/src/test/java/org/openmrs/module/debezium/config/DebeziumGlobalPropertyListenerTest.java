@@ -1,12 +1,13 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.config;
 
-import static org.openmrs.module.debezium.DebeziumConstants.GP_ENABLED;
+import static org.openmrs.module.debezium.utils.DebeziumConstants.GP_ENABLED;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openmrs.GlobalProperty;
+import org.openmrs.module.debezium.utils.DebeziumConstants;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;

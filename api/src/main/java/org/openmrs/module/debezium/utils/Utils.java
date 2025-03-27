@@ -1,4 +1,4 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

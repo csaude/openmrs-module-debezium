@@ -1,8 +1,8 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.utils;
 
 import static com.github.shyiko.mysql.binlog.event.deserialization.EventDeserializer.CompatibilityMode.CHAR_AND_BINARY_AS_BYTE_ARRAY;
 import static com.github.shyiko.mysql.binlog.event.deserialization.EventDeserializer.CompatibilityMode.DATE_AND_TIME_AS_LONG;
-import static org.openmrs.module.debezium.DebeziumConstants.GP_DB_SERVER_ID;
+import static org.openmrs.module.debezium.utils.DebeziumConstants.GP_DB_SERVER_ID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.api.context.Context;

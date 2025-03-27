@@ -1,7 +1,5 @@
 package org.openmrs.module.debezium.mysql;
 
-import org.openmrs.module.debezium.SslMode;
-
 /**
  * Enumeration for {@link SslMode} supported by MySQL, for more details please refer to
  * https://debezium.io/documentation/reference/1.6/connectors/mysql.html#mysql-property-database-ssl-mode

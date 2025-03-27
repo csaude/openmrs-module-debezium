@@ -1,7 +1,8 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.listener;
 
 import java.io.IOException;
 
+import org.openmrs.module.debezium.utils.BinlogUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,6 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.config;
 
-import static org.openmrs.module.debezium.ConfigPropertyConstants.ENGINE_DEFAULT_TOPIC_PREFIX;
+import static org.openmrs.module.debezium.config.ConfigPropertyConstants.ENGINE_DEFAULT_TOPIC_PREFIX;
 
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -11,6 +11,8 @@ import org.apache.kafka.connect.storage.OffsetBackingStore;
 
 import io.debezium.connector.common.RelationalBaseSourceConnector;
 import io.debezium.engine.ChangeEvent;
+import org.openmrs.module.debezium.utils.CustomFileOffsetBackingStore;
+import org.openmrs.module.debezium.mysql.SnapshotMode;
 
 /**
  * Base class for debezium configuration classes

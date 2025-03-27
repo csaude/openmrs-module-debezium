@@ -11,6 +11,8 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.debezium.utils.DebeziumConstants;
+import org.openmrs.module.debezium.utils.Utils;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;

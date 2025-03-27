@@ -1,8 +1,8 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.config;
 
 import static org.openmrs.api.context.Context.getRegisteredComponent;
-import static org.openmrs.module.debezium.DebeziumConstants.ENGINE_CONFIG_BEAN_NAME;
-import static org.openmrs.module.debezium.DebeziumConstants.GP_ENABLED;
+import static org.openmrs.module.debezium.utils.DebeziumConstants.ENGINE_CONFIG_BEAN_NAME;
+import static org.openmrs.module.debezium.utils.DebeziumConstants.GP_ENABLED;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,8 +12,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.openmrs.api.APIException;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.debezium.utils.CustomFileOffsetBackingStore;
+import org.openmrs.module.debezium.utils.DebeziumConstants;
 import org.openmrs.module.debezium.mysql.MySqlDebeziumConfig;
 import org.openmrs.module.debezium.mysql.MySqlSnapshotMode;
+import org.openmrs.module.debezium.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

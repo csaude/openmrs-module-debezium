@@ -1,4 +1,4 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.config;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,6 +7,7 @@ import java.util.Properties;
 import org.openmrs.module.debezium.mysql.MySqlSnapshotMode;
 
 import io.debezium.connector.mysql.MySqlConnector;
+import org.openmrs.module.debezium.utils.CustomFileOffsetBackingStore;
 
 public abstract class BaseDebeziumConfigTest {
 	
