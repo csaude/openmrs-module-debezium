@@ -1,7 +1,5 @@
 package org.openmrs.module.debezium.mysql;
 
-import org.openmrs.module.debezium.SnapshotMode;
-
 /**
  * Enumeration for {@link SnapshotMode} supported by MySQL, for more details please refer to
  * https://debezium.io/documentation/reference/1.6/connectors/mysql.html#mysql-property-snapshot-mode

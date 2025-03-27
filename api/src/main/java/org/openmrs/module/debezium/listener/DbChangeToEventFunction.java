@@ -1,4 +1,4 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.listener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,9 +9,12 @@ import org.apache.kafka.connect.source.SourceRecord;
 
 import io.debezium.DebeziumException;
 import io.debezium.engine.ChangeEvent;
+import org.openmrs.module.debezium.entity.DatabaseEvent;
+import org.openmrs.module.debezium.entity.DatabaseOperation;
 
 /**
- * Utility Function that creates a {@link DatabaseEvent} from a debezium {@link ChangeEvent}
+ * Utility Function that creates a {@link org.openmrs.module.debezium.entity.DatabaseEvent} from a
+ * debezium {@link ChangeEvent}
  */
 public class DbChangeToEventFunction implements Function<ChangeEvent<SourceRecord, SourceRecord>, DatabaseEvent> {
 	

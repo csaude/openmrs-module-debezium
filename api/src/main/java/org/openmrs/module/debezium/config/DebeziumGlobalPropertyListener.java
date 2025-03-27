@@ -1,7 +1,8 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.config;
 
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.GlobalPropertyListener;
+import org.openmrs.module.debezium.utils.DebeziumConstants;
 import org.springframework.stereotype.Component;
 
 @Component("dbzmGlobalPropertyListener")
