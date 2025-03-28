@@ -14,7 +14,7 @@
 	<!-- / Module Properties -->
 	
 	<!-- Module Activator -->
-	<activator>${project.parent.groupId}.${project.parent.artifactId}.config.DebeziumActivator</activator>
+	<activator>org.openmrs.module.debezium.config.DebeziumActivator</activator>
     
     <!-- Global properties -->
     <globalProperty>

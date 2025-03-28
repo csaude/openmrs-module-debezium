@@ -5,11 +5,15 @@ import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.debezium.entity.DatabaseEvent;
+import org.openmrs.module.debezium.entity.DebeziumEvent;
 import org.openmrs.util.PrivilegeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +26,16 @@ public class Utils {
 	private static final Logger log = LoggerFactory.getLogger(Utils.class);
 	
 	private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+	
+	private static final Map<String, String> DATABASE_OPERATION_MAP;
+	
+	static {
+		DATABASE_OPERATION_MAP = new HashMap();
+		DATABASE_OPERATION_MAP.put("CREATE", "C");
+		DATABASE_OPERATION_MAP.put("READ", "R");
+		DATABASE_OPERATION_MAP.put("UPDATE", "U");
+		DATABASE_OPERATION_MAP.put("DELETE", "D");
+	}
 	
 	/**
 	 * Gets a formatted timestamp
@@ -167,4 +181,13 @@ public class Utils {
 		return new String[] { host, portStr, dbName };
 	}
 	
+	public static DebeziumEvent convertDataBaseEvent(DatabaseEvent databaseEvent) {
+		DebeziumEvent debeziumEvent = new DebeziumEvent();
+		debeziumEvent.setOperation(DATABASE_OPERATION_MAP.get(databaseEvent.getOperation().toString()));
+		debeziumEvent.setTableName(databaseEvent.getTableName());
+		debeziumEvent.setSnapshot(databaseEvent.getSnapshot().equals("TRUE"));
+		debeziumEvent.setPrimaryKeyId(databaseEvent.getPrimaryKeyId().toString());
+		debeziumEvent.setCreatedAt(new Date());
+		return debeziumEvent;
+	}
 }
