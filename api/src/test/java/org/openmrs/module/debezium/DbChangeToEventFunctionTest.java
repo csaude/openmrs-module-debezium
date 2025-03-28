@@ -19,10 +19,13 @@ import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.openmrs.module.debezium.DatabaseEvent.Snapshot;
+import org.openmrs.module.debezium.entity.DatabaseEvent;
+import org.openmrs.module.debezium.entity.DatabaseEvent.Snapshot;
 
 import io.debezium.DebeziumException;
 import io.debezium.engine.ChangeEvent;
+import org.openmrs.module.debezium.entity.DatabaseOperation;
+import org.openmrs.module.debezium.listener.DbChangeToEventFunction;
 
 public class DbChangeToEventFunctionTest {
 	

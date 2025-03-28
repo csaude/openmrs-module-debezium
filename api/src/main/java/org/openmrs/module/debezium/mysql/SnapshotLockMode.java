@@ -1,4 +1,4 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.mysql;
 
 /**
  * Controls whether and how long the connector holds the global read lock, which prevents any

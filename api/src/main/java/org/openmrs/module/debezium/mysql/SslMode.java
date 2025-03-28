@@ -1,4 +1,4 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.mysql;
 
 /**
  * Specifies whether to use an encrypted connection

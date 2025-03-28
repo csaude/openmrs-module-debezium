@@ -7,7 +7,7 @@
  * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
  * graphic logo is a trademark of OpenMRS Inc.
  */
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.entity;
 
 /**
  * Enumeration for supported database change types

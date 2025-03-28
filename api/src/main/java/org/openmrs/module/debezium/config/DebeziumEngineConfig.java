@@ -1,4 +1,10 @@
-package org.openmrs.module.debezium;
+package org.openmrs.module.debezium.config;
+
+import org.openmrs.module.BaseModuleActivator;
+import org.openmrs.module.debezium.mysql.SnapshotMode;
+import org.openmrs.module.debezium.entity.DatabaseEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 import java.util.function.Consumer;
@@ -17,7 +23,7 @@ public interface DebeziumEngineConfig {
 	}
 	
 	/**
-	 * Gets the {@link SnapshotMode}
+	 * Gets the {@link org.openmrs.module.debezium.mysql.SnapshotMode}
 	 *
 	 * @return SnapshotMode
 	 */

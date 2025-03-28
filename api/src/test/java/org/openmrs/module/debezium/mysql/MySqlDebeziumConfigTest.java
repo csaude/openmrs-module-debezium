@@ -11,7 +11,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
-import org.openmrs.module.debezium.BaseDebeziumConfigTest;
+import org.openmrs.module.debezium.config.BaseDebeziumConfigTest;
 
 import io.debezium.storage.file.history.FileSchemaHistory;
 

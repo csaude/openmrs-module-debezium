@@ -9,9 +9,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.debezium.BaseDebeziumConfig;
-import org.openmrs.module.debezium.DebeziumConstants;
-import org.openmrs.module.debezium.SnapshotMode;
+import org.openmrs.module.debezium.config.BaseDebeziumConfig;
+import org.openmrs.module.debezium.utils.DebeziumConstants;
 
 import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.relational.history.SchemaHistory;
