@@ -4,8 +4,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +16,7 @@ import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.debezium.entity.DatabaseEvent;
 import org.openmrs.module.debezium.entity.DebeziumEvent;
+import org.openmrs.module.debezium.entity.EventType;
 import org.openmrs.util.PrivilegeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +31,9 @@ public class Utils {
 	private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 	
 	private static final Map<String, String> DATABASE_OPERATION_MAP;
+	
+	public final static List<String> DEMOGRAPHIC_TABLES = Arrays.asList("person", "patient", "person_name", "person_address",
+	    "patient_identifier", "person_attribute");
 	
 	static {
 		DATABASE_OPERATION_MAP = new HashMap();
@@ -183,6 +189,14 @@ public class Utils {
 	
 	public static DebeziumEvent convertDataBaseEvent(DatabaseEvent databaseEvent) {
 		DebeziumEvent debeziumEvent = new DebeziumEvent();
+		boolean isDemographicEvent = DEMOGRAPHIC_TABLES.contains(databaseEvent.getTableName());
+		
+		if (isDemographicEvent) {
+			debeziumEvent.setEventType(EventType.D);
+		} else {
+			debeziumEvent.setEventType(EventType.G);
+		}
+		
 		debeziumEvent.setOperation(DATABASE_OPERATION_MAP.get(databaseEvent.getOperation().toString()));
 		debeziumEvent.setTableName(databaseEvent.getTableName());
 		debeziumEvent.setSnapshot(databaseEvent.getSnapshot().equals("TRUE"));
@@ -190,4 +204,5 @@ public class Utils {
 		debeziumEvent.setCreatedAt(new Date());
 		return debeziumEvent;
 	}
+	
 }
