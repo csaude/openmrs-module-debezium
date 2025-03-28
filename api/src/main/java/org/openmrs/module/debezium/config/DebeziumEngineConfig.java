@@ -60,5 +60,5 @@ public interface DebeziumEngineConfig {
 	default Set<String> getTablesToExclude() {
 		return null;
 	}
-
+	
 }
