@@ -40,7 +40,7 @@
             <column name="updated_at" type="DATETIME(3)">
                 <constraints nullable="true"/>
             </column>
-            <column name="event_type" type="VARCHAR(100)">
+            <column name="event_type" type="VARCHAR(1)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
