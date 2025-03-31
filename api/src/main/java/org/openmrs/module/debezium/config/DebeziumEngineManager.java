@@ -2,7 +2,6 @@ package org.openmrs.module.debezium.config;
 
 import io.debezium.engine.ChangeEvent;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.openmrs.api.APIException;
 import org.openmrs.api.AdministrationService;
@@ -57,15 +56,10 @@ final class DebeziumEngineManager {
 			        new HashSet<>());
 			
 			Long serverId = Long.valueOf(adminService.getGlobalProperty(DebeziumConstants.GP_DB_SERVER_ID.trim()));
+
 			config.setServerId(serverId);
-			String userGp = adminService.getGlobalProperty(DebeziumConstants.GP_USER);
-			if (StringUtils.isNotBlank(userGp)) {
-				config.setUsername(userGp);
-				config.setPassword(adminService.getGlobalProperty(DebeziumConstants.GP_PASSWORD));
-			} else {
-				config.setUsername(Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_USERNAME));
-				config.setPassword(Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_PASSWORD));
-			}
+			config.setUsername(Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_USERNAME));
+			config.setPassword(Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_PASSWORD));
 			
 			String[] creds = Utils.getConnectionDetails();
 			config.setHost(creds[0]);

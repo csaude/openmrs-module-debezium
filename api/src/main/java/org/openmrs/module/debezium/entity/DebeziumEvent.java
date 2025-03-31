@@ -30,6 +30,7 @@ public class DebeziumEvent extends Auditable {
 	@Column(name = "request_uuid")
 	private String requestUuid;
 	
+	@Column(name = "event_type", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private EventType eventType;
 	
