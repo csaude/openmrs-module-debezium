@@ -9,8 +9,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "debezium_event")
-public class DebeziumEvent extends Auditable {
+@Table(name = "debezium_event_queue")
+public class DebeziumEventQueue extends Auditable {
 	
 	@Column(name = "primary_key_id", nullable = false)
 	private String primaryKeyId;

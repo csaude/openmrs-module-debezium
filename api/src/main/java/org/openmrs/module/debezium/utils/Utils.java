@@ -15,7 +15,7 @@ import org.openmrs.GlobalProperty;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.debezium.entity.DatabaseEvent;
-import org.openmrs.module.debezium.entity.DebeziumEvent;
+import org.openmrs.module.debezium.entity.DebeziumEventQueue;
 import org.openmrs.module.debezium.entity.EventType;
 import org.openmrs.util.PrivilegeConstants;
 import org.slf4j.Logger;
@@ -187,8 +187,8 @@ public class Utils {
 		return new String[] { host, portStr, dbName };
 	}
 	
-	public static DebeziumEvent convertDataBaseEvent(DatabaseEvent databaseEvent) {
-		DebeziumEvent debeziumEvent = new DebeziumEvent();
+	public static DebeziumEventQueue convertDataBaseEvent(DatabaseEvent databaseEvent) {
+		DebeziumEventQueue debeziumEvent = new DebeziumEventQueue();
 		boolean isDemographicEvent = DEMOGRAPHIC_TABLES.contains(databaseEvent.getTableName());
 		
 		if (isDemographicEvent) {
