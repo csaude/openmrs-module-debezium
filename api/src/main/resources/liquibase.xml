@@ -8,12 +8,12 @@
     <changeSet author="dchirinda" id="20250327-1100">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="debezium_event"/>
+                <tableExists tableName="debezium_event_queue"/>
             </not>
         </preConditions>
-        <comment>Adding debezium_event table</comment>
+        <comment>Adding debezium_event_queue table</comment>
 
-        <createTable tableName="debezium_event">
+        <createTable tableName="debezium_event_queue">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
