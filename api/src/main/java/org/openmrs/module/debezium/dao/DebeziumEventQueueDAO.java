@@ -20,11 +20,19 @@ public class DebeziumEventQueueDAO extends DaoBase {
 	public List<DebeziumEventQueue> getEventsByApplicationName(DebeziumEventQueueOffset offset, Integer fetchSize) {
 		return executeWithTransaction(sessionFactory, session -> {
 			Criteria criteria = session.createCriteria(DebeziumEventQueue.class);
-			criteria.setFetchSize(fetchSize);
+			if (fetchSize != null) {
+				criteria.setFetchSize(fetchSize);
+			}
+			
 			criteria.addOrder(Order.asc("id"));
+			
 			if (offset != null) {
 				if (offset.getLastRead() != null) {
-					criteria.add(Restrictions.between("id", offset.getFirstRead(), offset.getLastRead()));
+					if (offset.isCreated()) {
+						criteria.add(Restrictions.between("id", offset.getFirstRead(), offset.getLastRead()));
+					} else if (!offset.isCreated()) {
+						criteria.add(Restrictions.gt("id", offset.getLastRead()));
+					}
 				} else {
 					criteria.add(Restrictions.gt("id", offset.getFirstRead()));
 				}

@@ -34,35 +34,66 @@ public class DebeziumEventQueueServiceImpl extends BaseOpenmrsService implements
 		Set<DebeziumEventQueue> eventQueues = new HashSet<>();
 		List<String> parameterizedTables = getParameterizedTables(applicationName);
 		DebeziumEventQueueOffset offset = offsetDAO.getOffsetByApplicationName(applicationName);
+		int fetchSize = Integer.parseInt(getFetchSize());
 		
-		List<DebeziumEventQueue> eventQueue = eventQueueDAO.getEventsByApplicationName(offset,
-		    Integer.parseInt(getFetchSize()));
-		
-		for (DebeziumEventQueue debeziumEventQueue : eventQueue) {
-			if (parameterizedTables.contains(debeziumEventQueue.getTableName())) {
-				eventQueues.add(debeziumEventQueue);
+		// Request new data without commit of the preview request
+		if (offset != null && offset.getLastRead() != null) {
+			return this.processEventWithoutCommit(offset, parameterizedTables);
+		} else {
+			// Request of new data without offset respecting the fetch size limit
+			while (eventQueues.size() < fetchSize) {
+				List<DebeziumEventQueue> eventQueue = eventQueueDAO.getEventsByApplicationName(offset, fetchSize);
+				
+				if (eventQueue == null || eventQueue.isEmpty()) {
+					break;
+				}
+				
+				for (DebeziumEventQueue debeziumEventQueue : eventQueue) {
+					if (parameterizedTables.contains(debeziumEventQueue.getTableName())) {
+						eventQueues.add(debeziumEventQueue);
+						if (eventQueues.size() >= fetchSize) {
+							break;
+						}
+					}
+				}
+				//update offset or create new one
+				if (!eventQueues.isEmpty()) {
+					if (offset != null) {
+						offset.setLastRead(eventQueue.get(eventQueue.size() - 1).getId());
+					} else {
+						offset = new DebeziumEventQueueOffset();
+						offset.setFirstRead(eventQueue.get(0).getId());
+						offset.setLastRead(eventQueue.get(eventQueue.size() - 1).getId());
+						offset.setApplicationName(applicationName);
+						offset.setActive(Boolean.TRUE);
+						offset.setCreatedAt(new Date());
+					}
+				}
 			}
 		}
 		
-		//update offset or create new one
-		if (eventQueues.size() > 0) {
-			if (offset != null) {
-				offset.setFirstRead(eventQueue.get(0).getId());
-				offset.setLastRead(eventQueue.get(eventQueue.size() - 1).getId());
+		if (!eventQueues.isEmpty()) {
+			if (offset.isCreated()) {
 				offsetDAO.updateOffset(offset);
 			} else {
-				DebeziumEventQueueOffset newOffset = new DebeziumEventQueueOffset();
-				newOffset.setFirstRead(eventQueue.get(0).getId());
-				newOffset.setLastRead(eventQueue.get(eventQueue.size() - 1).getId());
-				newOffset.setApplicationName(applicationName);
-				newOffset.setActive(Boolean.TRUE);
-				newOffset.setCreatedAt(new Date());
-				
-				offsetDAO.saveOffset(newOffset);
+				offsetDAO.saveOffset(offset);
 			}
 		}
 		
 		return eventQueues;
+	}
+	
+	private Set<DebeziumEventQueue> processEventWithoutCommit(DebeziumEventQueueOffset offset,
+	        List<String> parameterizedTables) {
+		Set<DebeziumEventQueue> previousEventQueues = new HashSet<>();
+		List<DebeziumEventQueue> alreadyProcessedEvents = eventQueueDAO.getEventsByApplicationName(offset, null);
+		
+		for (DebeziumEventQueue debeziumEventQueue : alreadyProcessedEvents) {
+			if (parameterizedTables.contains(debeziumEventQueue.getTableName())) {
+				previousEventQueues.add(debeziumEventQueue);
+			}
+		}
+		return previousEventQueues;
 	}
 	
 	@Override
