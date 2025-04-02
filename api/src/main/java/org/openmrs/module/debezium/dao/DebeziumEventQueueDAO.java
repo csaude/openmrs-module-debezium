@@ -1,17 +1,35 @@
 package org.openmrs.module.debezium.dao;
 
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.openmrs.module.debezium.entity.DebeziumEventQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openmrs.module.debezium.entity.DebeziumEventQueueOffset;
+
+import java.util.List;
 
 public class DebeziumEventQueueDAO extends DaoBase {
-	
-	private static final Logger logger = LoggerFactory.getLogger(DebeziumEventQueueDAO.class);
 	
 	public void createDebeziumEvent(DebeziumEventQueue debeziumEvent) {
 		executeWithTransaction(sessionFactory, session -> {
 			session.saveOrUpdate(debeziumEvent);
 			return null;
+		});
+	}
+	
+	public List<DebeziumEventQueue> getEventsByApplicationName(DebeziumEventQueueOffset offset, Integer fetchSize) {
+		return executeWithTransaction(sessionFactory, session -> {
+			Criteria criteria = session.createCriteria(DebeziumEventQueue.class);
+			criteria.setFetchSize(fetchSize);
+			criteria.addOrder(Order.asc("id"));
+			if (offset != null) {
+				if (offset.getLastRead() != null) {
+					criteria.add(Restrictions.between("id", offset.getFirstRead(), offset.getLastRead()));
+				} else {
+					criteria.add(Restrictions.gt("id", offset.getFirstRead()));
+				}
+			}
+			return criteria.list();
 		});
 	}
 }

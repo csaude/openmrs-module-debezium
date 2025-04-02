@@ -12,6 +12,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.GlobalProperty;
+import org.openmrs.api.APIAuthenticationException;
+import org.openmrs.api.APIException;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.debezium.entity.DatabaseEvent;
@@ -203,6 +205,30 @@ public class Utils {
 		debeziumEvent.setPrimaryKeyId(databaseEvent.getPrimaryKeyId().toString());
 		debeziumEvent.setCreatedAt(new Date());
 		return debeziumEvent;
+	}
+	
+	/**
+	 * Retrieves the value of a global property with the specified name
+	 *
+	 * @param gpName the global property name
+	 * @return the global property value
+	 */
+	public static String getGlobalPropertyValue(String gpName) {
+		
+		try {
+			String value = Context.getAdministrationService().getGlobalProperty(gpName);
+			if (StringUtils.isBlank(value)) {
+				throw new APIException("No value set for the global property named: " + gpName);
+			}
+			return value;
+		}
+		catch (APIAuthenticationException e) {
+			throw new RuntimeException("An error occurred trying to get the value for the global property: " + gpName, e);
+		}
+	}
+	
+	public static String getFetchSize() {
+		return Utils.getGlobalPropertyValue(DebeziumConstants.GP_FETCH_SIZE);
 	}
 	
 }

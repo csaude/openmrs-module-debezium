@@ -28,4 +28,8 @@ public class DebeziumConstants {
 	
 	public final static String GP_SSL_MODE = MODULE_ID + ".mysql.database.ssl.mode";
 	
+	public final static String GP_FETCH_SIZE = MODULE_ID + ".event.default.count";
+	
+	public final static String GP_APPLICATION_NAME = MODULE_ID + ".event.application.name";
+	
 }
