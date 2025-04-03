@@ -62,7 +62,6 @@ public abstract class BaseDebeziumConfig<T extends RelationalBaseSourceConnector
 		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_DB_USERNAME, getUsername());
 		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_DB_PASSWORD, getPassword());
 		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_SNAPSHOT_MODE, getSnapshotMode().getPropertyValue());
-		//props.setProperty("snapshot.fetch.size", "10240");
 		props.setProperty(ConfigPropertyConstants.ENGINE_PROP_OFF_SET_FLUSH_TIMEOUT_MS, "15000");
 		props.setProperty(ConfigPropertyConstants.CONNECTOR_PROP_TOMBSTONE_ON_DELETE, "false");
 		

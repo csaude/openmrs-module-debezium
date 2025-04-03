@@ -75,5 +75,5 @@ public class DebeziumEventQueue extends Auditable {
 	public void setRequestUuid(String requestUuid) {
 		this.requestUuid = requestUuid;
 	}
-	
+
 }
