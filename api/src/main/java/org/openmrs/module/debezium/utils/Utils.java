@@ -1,5 +1,15 @@
 package org.openmrs.module.debezium.utils;
 
+import org.apache.commons.lang3.StringUtils;
+import org.openmrs.GlobalProperty;
+import org.openmrs.api.AdministrationService;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.debezium.entity.DatabaseEvent;
+import org.openmrs.module.debezium.entity.DebeziumEventQueue;
+import org.openmrs.util.PrivilegeConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
@@ -192,17 +202,11 @@ public class Utils {
 	public static DebeziumEventQueue convertDataBaseEvent(DatabaseEvent databaseEvent) {
 		DebeziumEventQueue debeziumEvent = new DebeziumEventQueue();
 		boolean isDemographicEvent = DEMOGRAPHIC_TABLES.contains(databaseEvent.getTableName());
-		
-		if (isDemographicEvent) {
-			debeziumEvent.setEventType(EventType.D);
-		} else {
-			debeziumEvent.setEventType(EventType.G);
-		}
-		
+
 		debeziumEvent.setOperation(DATABASE_OPERATION_MAP.get(databaseEvent.getOperation().toString()));
 		debeziumEvent.setTableName(databaseEvent.getTableName());
 		debeziumEvent.setSnapshot(databaseEvent.getSnapshot().equals("TRUE"));
-		debeziumEvent.setPrimaryKeyId(databaseEvent.getPrimaryKeyId().toString());
+		debeziumEvent.setPrimaryKeyId((Integer) databaseEvent.getPrimaryKeyId());
 		debeziumEvent.setCreatedAt(new Date());
 		return debeziumEvent;
 	}
@@ -214,7 +218,7 @@ public class Utils {
 	 * @return the global property value
 	 */
 	public static String getGlobalPropertyValue(String gpName) {
-		
+
 		try {
 			String value = Context.getAdministrationService().getGlobalProperty(gpName);
 			if (StringUtils.isBlank(value)) {
@@ -226,9 +230,9 @@ public class Utils {
 			throw new RuntimeException("An error occurred trying to get the value for the global property: " + gpName, e);
 		}
 	}
-	
+
 	public static String getFetchSize() {
 		return Utils.getGlobalPropertyValue(DebeziumConstants.GP_FETCH_SIZE);
 	}
-	
+
 }
