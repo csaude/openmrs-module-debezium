@@ -4,7 +4,7 @@ import org.openmrs.module.BaseModuleActivator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class DebeziumActivator extends BaseModuleActivator {
+public class DebeziumActivator extends BaseModuleActivator {
 	
 	private static final Logger log = LoggerFactory.getLogger(DebeziumActivator.class);
 	

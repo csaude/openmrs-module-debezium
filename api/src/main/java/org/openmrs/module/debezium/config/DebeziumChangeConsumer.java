@@ -1,18 +1,17 @@
 package org.openmrs.module.debezium.config;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
+import io.debezium.engine.ChangeEvent;
 import org.apache.kafka.connect.source.SourceRecord;
-import org.openmrs.module.debezium.utils.CustomFileOffsetBackingStore;
-import org.openmrs.module.debezium.listener.DbChangeToEventFunction;
-import org.openmrs.module.debezium.utils.DebeziumConstants;
 import org.openmrs.module.debezium.entity.DatabaseEvent;
+import org.openmrs.module.debezium.listener.DbChangeToEventFunction;
+import org.openmrs.module.debezium.utils.CustomFileOffsetBackingStore;
+import org.openmrs.module.debezium.utils.DebeziumConstants;
 import org.openmrs.module.debezium.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.debezium.engine.ChangeEvent;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Database ChangeEvent consumer which creates a DatabaseEvent instance from the source record and

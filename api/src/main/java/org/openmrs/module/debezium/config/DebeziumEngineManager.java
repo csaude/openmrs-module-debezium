@@ -1,24 +1,32 @@
 package org.openmrs.module.debezium.config;
 
-import static org.openmrs.api.context.Context.getRegisteredComponent;
-import static org.openmrs.module.debezium.utils.DebeziumConstants.ENGINE_CONFIG_BEAN_NAME;
-import static org.openmrs.module.debezium.utils.DebeziumConstants.GP_ENABLED;
-
-import java.io.File;
-import java.io.IOException;
-
+import io.debezium.engine.ChangeEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.connect.source.SourceRecord;
 import org.openmrs.api.APIException;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.debezium.utils.CustomFileOffsetBackingStore;
-import org.openmrs.module.debezium.utils.DebeziumConstants;
+import org.openmrs.module.debezium.entity.DatabaseEvent;
+import org.openmrs.module.debezium.listener.DbChangeToEventFunction;
 import org.openmrs.module.debezium.mysql.MySqlDebeziumConfig;
 import org.openmrs.module.debezium.mysql.MySqlSnapshotMode;
+import org.openmrs.module.debezium.service.DebeziumEventService;
+import org.openmrs.module.debezium.utils.CustomFileOffsetBackingStore;
+import org.openmrs.module.debezium.utils.DebeziumConstants;
+import org.openmrs.module.debezium.utils.TableToWatch;
 import org.openmrs.module.debezium.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import static org.openmrs.module.debezium.utils.DebeziumConstants.GP_ENABLED;
 
 final class DebeziumEngineManager {
 	
@@ -44,9 +52,10 @@ final class DebeziumEngineManager {
 				return;
 			}
 			
-			DebeziumEngineConfig engCfg = getRegisteredComponent(ENGINE_CONFIG_BEAN_NAME, DebeziumEngineConfig.class);
-			BaseDebeziumConfig config = new MySqlDebeziumConfig((MySqlSnapshotMode) engCfg.getSnapshotMode(),
-			        engCfg.getTablesToInclude(), engCfg.getTablesToExclude());
+			Set<String> tablesToInclude = TableToWatch.getTablesToInclude();
+			BaseDebeziumConfig config = new MySqlDebeziumConfig(MySqlSnapshotMode.SCHEMA_ONLY, tablesToInclude,
+			        new HashSet<>());
+			
 			Long serverId = Long.valueOf(adminService.getGlobalProperty(DebeziumConstants.GP_DB_SERVER_ID.trim()));
 			config.setServerId(serverId);
 			String userGp = adminService.getGlobalProperty(DebeziumConstants.GP_USER);
@@ -65,11 +74,21 @@ final class DebeziumEngineManager {
 			config.setOffsetStorageFilename(adminService.getGlobalProperty(DebeziumConstants.GP_OFFSET_STORAGE_FILE));
 			config.setAdditionalConfigProperties();
 			engine = OpenmrsDebeziumEngine.getInstance();
-			config.setConsumer(new DebeziumChangeConsumer(engCfg.getEventListener()));
+			
+			Consumer<ChangeEvent<SourceRecord, SourceRecord>> eventConsumer = event -> {
+				Function<ChangeEvent<SourceRecord, SourceRecord>, DatabaseEvent> function = new DbChangeToEventFunction();
+				
+				DatabaseEvent dbEvent = function.apply(event);
+				log.debug("Processing event {}", event);
+				DebeziumEventService debeziumService = Context.getService(DebeziumEventService.class);
+				debeziumService.createDebeziumEvent(Utils.convertDataBaseEvent(dbEvent));
+			};
+			
+			config.setConsumer(eventConsumer);
 			
 			//TODO Support postgres
-			if (engCfg.getSnapshotMode() == MySqlSnapshotMode.INITIAL
-			        || engCfg.getSnapshotMode() == MySqlSnapshotMode.INITIAL_ONLY) {
+			if (config.getSnapshotMode() == MySqlSnapshotMode.INITIAL
+			        || config.getSnapshotMode() == MySqlSnapshotMode.INITIAL_ONLY) {
 				
 				File offsetFile = new File(config.getOffsetStorageFilename());
 				if (offsetFile.exists()) {
@@ -94,7 +113,6 @@ final class DebeziumEngineManager {
 			CustomFileOffsetBackingStore.reset();
 			
 			//TODO support postgres i.e. add a GP to specify the connector class
-			engCfg.init();
 			
 			log.info("Starting OpenMRS debezium engine");
 			

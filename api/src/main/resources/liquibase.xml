@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+    <changeSet author="dchirinda" id="20250327-1100">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="debezium_event_queue"/>
+            </not>
+        </preConditions>
+        <comment>Adding debezium_event_queue table</comment>
+
+        <createTable tableName="debezium_event_queue">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="table_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="primary_key_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="identifier" type="VARCHAR(255)"/>
+
+            <column name="operation" type="CHAR(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="snapshot" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="request_uuid" type="CHAR(38)">
+                <constraints unique="true"/>
+            </column>
+            <column name="created_at" type="DATETIME(3)">
+                <constraints nullable="false" />
+            </column>
+            <column name="updated_at" type="DATETIME(3)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

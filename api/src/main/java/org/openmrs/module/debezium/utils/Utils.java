@@ -1,18 +1,24 @@
 package org.openmrs.module.debezium.utils;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.debezium.entity.DatabaseEvent;
+import org.openmrs.module.debezium.entity.DebeziumEventQueue;
 import org.openmrs.util.PrivilegeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Contains general utility methods
@@ -22,6 +28,19 @@ public class Utils {
 	private static final Logger log = LoggerFactory.getLogger(Utils.class);
 	
 	private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+	
+	private static final Map<String, String> DATABASE_OPERATION_MAP;
+	
+	public final static List<String> DEMOGRAPHIC_TABLES = Arrays.asList("person", "patient", "person_name", "person_address",
+	    "patient_identifier", "person_attribute");
+	
+	static {
+		DATABASE_OPERATION_MAP = new HashMap();
+		DATABASE_OPERATION_MAP.put("CREATE", "C");
+		DATABASE_OPERATION_MAP.put("READ", "R");
+		DATABASE_OPERATION_MAP.put("UPDATE", "U");
+		DATABASE_OPERATION_MAP.put("DELETE", "D");
+	}
 	
 	/**
 	 * Gets a formatted timestamp
@@ -165,6 +184,17 @@ public class Utils {
 		}
 		
 		return new String[] { host, portStr, dbName };
+	}
+	
+	public static DebeziumEventQueue convertDataBaseEvent(DatabaseEvent databaseEvent) {
+		DebeziumEventQueue debeziumEvent = new DebeziumEventQueue();
+
+		debeziumEvent.setOperation(DATABASE_OPERATION_MAP.get(databaseEvent.getOperation().toString()));
+		debeziumEvent.setTableName(databaseEvent.getTableName());
+		debeziumEvent.setSnapshot(databaseEvent.getSnapshot().equals("TRUE"));
+		debeziumEvent.setPrimaryKeyId((Integer) databaseEvent.getPrimaryKeyId());
+		debeziumEvent.setCreatedAt(new Date());
+		return debeziumEvent;
 	}
 	
 }
