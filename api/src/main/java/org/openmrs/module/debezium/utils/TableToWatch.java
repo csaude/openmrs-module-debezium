@@ -21,9 +21,7 @@ public enum TableToWatch {
 	patient_program,
 	
 	patient_state,
-	
-	provider_attribute,
-	
+
 	encounter_diagnosis,
 	
 	conditions,
@@ -35,17 +33,9 @@ public enum TableToWatch {
 	person_address,
 	
 	patient_identifier,
-	
-	orders,
-	
-	drug_order,
-	
-	test_order,
-	
+
 	relationship,
-	
-	provider,
-	
+
 	encounter_provider,
 	
 	clinicalsummary_usage_report,
