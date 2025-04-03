@@ -1,5 +1,15 @@
 package org.openmrs.module.debezium.utils;
 
+import org.apache.commons.lang3.StringUtils;
+import org.openmrs.GlobalProperty;
+import org.openmrs.api.AdministrationService;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.debezium.entity.DatabaseEvent;
+import org.openmrs.module.debezium.entity.DebeziumEventQueue;
+import org.openmrs.util.PrivilegeConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
@@ -9,17 +19,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.openmrs.GlobalProperty;
-import org.openmrs.api.AdministrationService;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.debezium.entity.DatabaseEvent;
-import org.openmrs.module.debezium.entity.DebeziumEventQueue;
-import org.openmrs.module.debezium.entity.EventType;
-import org.openmrs.util.PrivilegeConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Contains general utility methods
@@ -191,16 +190,10 @@ public class Utils {
 		DebeziumEventQueue debeziumEvent = new DebeziumEventQueue();
 		boolean isDemographicEvent = DEMOGRAPHIC_TABLES.contains(databaseEvent.getTableName());
 		
-		if (isDemographicEvent) {
-			debeziumEvent.setEventType(EventType.D);
-		} else {
-			debeziumEvent.setEventType(EventType.G);
-		}
-		
 		debeziumEvent.setOperation(DATABASE_OPERATION_MAP.get(databaseEvent.getOperation().toString()));
 		debeziumEvent.setTableName(databaseEvent.getTableName());
 		debeziumEvent.setSnapshot(databaseEvent.getSnapshot().equals("TRUE"));
-		debeziumEvent.setPrimaryKeyId(databaseEvent.getPrimaryKeyId().toString());
+		debeziumEvent.setPrimaryKeyId((Integer) databaseEvent.getPrimaryKeyId());
 		debeziumEvent.setCreatedAt(new Date());
 		return debeziumEvent;
 	}

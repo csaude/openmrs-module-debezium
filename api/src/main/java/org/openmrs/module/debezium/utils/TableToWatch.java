@@ -22,15 +22,7 @@ public enum TableToWatch {
 	
 	patient_state,
 	
-	concept_attribute,
-	
-	location_attribute,
-	
 	provider_attribute,
-	
-	visit_attribute,
-	
-	location,
 	
 	encounter_diagnosis,
 	
@@ -50,21 +42,11 @@ public enum TableToWatch {
 	
 	test_order,
 	
-	users,
-	
 	relationship,
 	
 	provider,
 	
 	encounter_provider,
-	
-	gaac,
-	
-	gaac_member,
-	
-	gaac_family,
-	
-	gaac_family_member,
 	
 	clinicalsummary_usage_report,
 	
