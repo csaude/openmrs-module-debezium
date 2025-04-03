@@ -20,18 +20,18 @@
             <column name="table_name" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
-            <column name="primary_key_id" type="VARCHAR(255)">
+            <column name="primary_key_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="identifier" type="VARCHAR(255)"/>
 
-            <column name="operation" type="VARCHAR(1)">
+            <column name="operation" type="CHAR(1)">
                 <constraints nullable="false"/>
             </column>
             <column name="snapshot" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
-            <column name="request_uuid" type="VARCHAR(38)">
+            <column name="request_uuid" type="CHAR(38)">
                 <constraints unique="true"/>
             </column>
             <column name="created_at" type="DATETIME(3)">
@@ -39,9 +39,6 @@
             </column>
             <column name="updated_at" type="DATETIME(3)">
                 <constraints nullable="true"/>
-            </column>
-            <column name="event_type" type="VARCHAR(1)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>

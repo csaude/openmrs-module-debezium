@@ -4,8 +4,6 @@ import org.openmrs.module.debezium.entity.core.Auditable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
 @Entity
@@ -13,7 +11,7 @@ import javax.persistence.Table;
 public class DebeziumEventQueue extends Auditable {
 	
 	@Column(name = "primary_key_id", nullable = false)
-	private String primaryKeyId;
+	private Integer primaryKeyId;
 	
 	@Column(name = "identifier")
 	private String identifier;
@@ -30,14 +28,11 @@ public class DebeziumEventQueue extends Auditable {
 	@Column(name = "request_uuid")
 	private String requestUuid;
 	
-	@Enumerated(EnumType.STRING)
-	private EventType eventType;
-	
-	public String getPrimaryKeyId() {
+	public Integer getPrimaryKeyId() {
 		return primaryKeyId;
 	}
 	
-	public void setPrimaryKeyId(String primaryKeyId) {
+	public void setPrimaryKeyId(Integer primaryKeyId) {
 		this.primaryKeyId = primaryKeyId;
 	}
 	
@@ -81,11 +76,4 @@ public class DebeziumEventQueue extends Auditable {
 		this.requestUuid = requestUuid;
 	}
 	
-	public EventType getEventType() {
-		return eventType;
-	}
-	
-	public void setEventType(EventType eventType) {
-		this.eventType = eventType;
-	}
 }
