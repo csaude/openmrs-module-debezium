@@ -32,6 +32,13 @@
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-mysql</artifactId>
         </dependency>
+    <!-- Remove dependency after test  -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>5.3.23</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

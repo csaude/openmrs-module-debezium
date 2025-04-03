@@ -56,7 +56,7 @@ final class DebeziumEngineManager {
 			        new HashSet<>());
 			
 			Long serverId = Long.valueOf(adminService.getGlobalProperty(DebeziumConstants.GP_DB_SERVER_ID.trim()));
-
+			
 			config.setServerId(serverId);
 			config.setUsername(Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_USERNAME));
 			config.setPassword(Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_PASSWORD));
