@@ -42,7 +42,13 @@ public class DebeziumEventQueueServiceImpl extends BaseOpenmrsService implements
 		} else {
 			// Request of new data without offset respecting the fetch size limit
 			while (eventQueues.size() < fetchSize) {
-				List<DebeziumEventQueue> eventQueue = eventQueueDAO.getEventsByApplicationName(offset, fetchSize);
+				List<DebeziumEventQueue> eventQueue;
+				if (offset != null && offset.isCreated() && offset.getLastRead() != null) {
+					eventQueue = eventQueueDAO.getEventsByApplicationNameRecursive(offset.getLastRead(), fetchSize);
+					
+				} else {
+					eventQueue = eventQueueDAO.getEventsByApplicationName(offset, fetchSize);
+				}
 				
 				if (eventQueue == null || eventQueue.isEmpty()) {
 					break;
@@ -99,9 +105,11 @@ public class DebeziumEventQueueServiceImpl extends BaseOpenmrsService implements
 	@Override
 	public void commitEventQueue(String applicationName) {
 		DebeziumEventQueueOffset offset = offsetDAO.getOffsetByApplicationName(applicationName);
-		offset.setFirstRead(offset.getLastRead());
-		offset.setLastRead(null);
-		offsetDAO.updateOffset(offset);
+		if(offset.getLastRead() != null) {
+			offset.setFirstRead(offset.getLastRead());
+			offset.setLastRead(null);
+			offsetDAO.updateOffset(offset);
+		}
 	}
 	
 	public DebeziumEventQueueDAO getEventQueueDAO() {

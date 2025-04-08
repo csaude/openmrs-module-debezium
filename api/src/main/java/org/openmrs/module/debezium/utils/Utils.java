@@ -190,7 +190,7 @@ public class Utils {
 	
 	public static DebeziumEventQueue convertDataBaseEvent(DatabaseEvent databaseEvent) {
 		DebeziumEventQueue debeziumEvent = new DebeziumEventQueue();
-
+		
 		debeziumEvent.setOperation(DATABASE_OPERATION_MAP.get(databaseEvent.getOperation().toString()));
 		debeziumEvent.setTableName(databaseEvent.getTableName());
 		debeziumEvent.setSnapshot(databaseEvent.getSnapshot().equals("TRUE"));

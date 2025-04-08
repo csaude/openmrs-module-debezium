@@ -40,4 +40,16 @@ public class DebeziumEventQueueDAO extends DaoBase {
 			return criteria.list();
 		});
 	}
+	
+	public List<DebeziumEventQueue> getEventsByApplicationNameRecursive(Integer lastRead, Integer fetchSize) {
+		return executeWithTransaction(sessionFactory, session -> {
+			Criteria criteria = session.createCriteria(DebeziumEventQueue.class);
+			criteria.setFetchSize(fetchSize);
+			criteria.addOrder(Order.asc("id"));
+			criteria.add(Restrictions.gt("id", lastRead));
+			
+			return criteria.list();
+		});
+	}
+	
 }
