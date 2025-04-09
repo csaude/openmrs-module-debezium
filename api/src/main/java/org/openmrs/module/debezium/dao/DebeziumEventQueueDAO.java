@@ -1,11 +1,13 @@
 package org.openmrs.module.debezium.dao;
 
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.openmrs.module.debezium.entity.DebeziumEventQueue;
-import org.openmrs.module.debezium.entity.DebeziumEventQueueOffset;
 
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DebeziumEventQueueDAO extends DaoBase {
@@ -17,39 +19,30 @@ public class DebeziumEventQueueDAO extends DaoBase {
 		});
 	}
 	
-	public List<DebeziumEventQueue> getEventsByApplicationName(DebeziumEventQueueOffset offset, Integer fetchSize) {
+	public List<DebeziumEventQueue> fetchDebeziumEvents(Integer starterId, Integer fetchSize) {
 		return executeWithTransaction(sessionFactory, session -> {
-			Criteria criteria = session.createCriteria(DebeziumEventQueue.class);
+			
+			CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+			CriteriaQuery<DebeziumEventQueue> criteriaQuery = criteriaBuilder.createQuery(DebeziumEventQueue.class);
+			Root<DebeziumEventQueue> root = criteriaQuery.from(DebeziumEventQueue.class);
+			criteriaQuery.select(root);
+			
+			List<Predicate> predicates = new ArrayList<>();
+			if (starterId != null) {
+				predicates.add(criteriaBuilder.greaterThan(root.get("id"), starterId));
+			}
+			
+			if (!predicates.isEmpty()) {
+				criteriaQuery.where(predicates.toArray(new Predicate[0]));
+			}
+			
+			criteriaQuery.orderBy(criteriaBuilder.asc(root.get("id")));
+			TypedQuery<DebeziumEventQueue> query = session.createQuery(criteriaQuery);
 			if (fetchSize != null) {
-				criteria.setFetchSize(fetchSize);
+				query.setMaxResults(fetchSize);
 			}
 			
-			criteria.addOrder(Order.asc("id"));
-			
-			if (offset != null) {
-				if (offset.getLastRead() != null) {
-					if (offset.isCreated()) {
-						criteria.add(Restrictions.between("id", offset.getFirstRead(), offset.getLastRead()));
-					} else if (!offset.isCreated()) {
-						criteria.add(Restrictions.gt("id", offset.getLastRead()));
-					}
-				} else {
-					criteria.add(Restrictions.gt("id", offset.getFirstRead()));
-				}
-			}
-			return criteria.list();
+			return query.getResultList();
 		});
 	}
-	
-	public List<DebeziumEventQueue> getEventsByApplicationNameRecursive(Integer lastRead, Integer fetchSize) {
-		return executeWithTransaction(sessionFactory, session -> {
-			Criteria criteria = session.createCriteria(DebeziumEventQueue.class);
-			criteria.setFetchSize(fetchSize);
-			criteria.addOrder(Order.asc("id"));
-			criteria.add(Restrictions.gt("id", lastRead));
-			
-			return criteria.list();
-		});
-	}
-	
 }

@@ -7,7 +7,7 @@ import java.util.Set;
 
 public interface DebeziumEventQueueService extends OpenmrsService {
 	
-	Set<DebeziumEventQueue> getEventsByApplicationName(String applicationName);
+	Set<DebeziumEventQueue> getApplicationEvents(String applicationName);
 	
 	void commitEventQueue(String applicationName);
 }

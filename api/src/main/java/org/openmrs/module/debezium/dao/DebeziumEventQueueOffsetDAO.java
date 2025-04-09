@@ -1,12 +1,17 @@
 package org.openmrs.module.debezium.dao;
 
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Restrictions;
 import org.openmrs.module.debezium.entity.DebeziumEventQueueOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DebeziumEventQueueOffsetDAO extends DaoBase {
 	
@@ -44,10 +49,20 @@ public class DebeziumEventQueueOffsetDAO extends DaoBase {
 	
 	public DebeziumEventQueueOffset getOffsetByApplicationName(String applicationName) {
 		return executeWithTransaction(sessionFactory, session -> {
-			Criteria criteria = session.createCriteria(DebeziumEventQueueOffset.class);
-			criteria.add(Restrictions.eq("applicationName", applicationName));
 			
-			return (DebeziumEventQueueOffset) criteria.uniqueResult();
+			CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+			CriteriaQuery<DebeziumEventQueueOffset> criteriaQuery = criteriaBuilder
+			        .createQuery(DebeziumEventQueueOffset.class);
+			Root<DebeziumEventQueueOffset> root = criteriaQuery.from(DebeziumEventQueueOffset.class);
+			criteriaQuery.select(root);
+			
+			List<Predicate> predicates = new ArrayList<>();
+			predicates.add(criteriaBuilder.equal(root.get("applicationName"), applicationName));
+			criteriaQuery.where(predicates.toArray(new Predicate[0]));
+			
+			TypedQuery<DebeziumEventQueueOffset> query = session.createQuery(criteriaQuery);
+			
+			return query.getSingleResult();
 		});
 	}
 }
