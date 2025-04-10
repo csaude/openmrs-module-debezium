@@ -36,10 +36,10 @@ public class DebeziumEventQueueServiceImpl extends BaseOpenmrsService implements
 		List<String> parameterizedTables = getParameterizedTables(applicationName);
 		DebeziumEventQueueOffset offset = offsetDAO.getOffsetByApplicationName(applicationName);
 		int fetchSize = Integer.parseInt(getFetchSize());
-		boolean recursiveFetch = Boolean.FALSE;
+		Integer firstRead = 0;
+		Integer starterId = offset != null ? offset.getFirstRead() : 0;
 		// Fetch events
 		while (allFetchedEvents.size() < fetchSize) {
-			Integer starterId = getStarterId(offset, recursiveFetch);
 			
 			List<DebeziumEventQueue> lastFetchedEvents = eventQueueDAO.fetchDebeziumEvents(starterId, fetchSize);
 			
@@ -55,55 +55,33 @@ public class DebeziumEventQueueServiceImpl extends BaseOpenmrsService implements
 					}
 				}
 			}
-			//update offset or create new one
-			if (!allFetchedEvents.isEmpty()) {
-				if (offset != null) {
-					offset.setLastRead(lastFetchedEvents.get(lastFetchedEvents.size() - 1).getId());
-				} else {
-					offset = new DebeziumEventQueueOffset();
-					offset.setFirstRead(lastFetchedEvents.get(0).getId());
-					offset.setLastRead(lastFetchedEvents.get(lastFetchedEvents.size() - 1).getId());
-					offset.setApplicationName(applicationName);
-					offset.setActive(Boolean.TRUE);
-					offset.setCreatedAt(new Date());
-				}
-			}
 			
-			// Verify if has to do recursive search
-			if (allFetchedEvents.size() < fetchSize) {
-				recursiveFetch = Boolean.TRUE;
+			if (firstRead == 0) {
+				firstRead = lastFetchedEvents.get(0).getId();
 			}
+			starterId = lastFetchedEvents.get(lastFetchedEvents.size() - 1).getId();
 		}
 		
-		if (!allFetchedEvents.isEmpty()) {
-			if (offset.isCreated()) {
-				offsetDAO.updateOffset(offset);
-			} else {
-				offsetDAO.saveOffset(offset);
-			}
-		}
-		
+		saveOrUpdateOffset(offset, firstRead, starterId, applicationName);
 		return allFetchedEvents;
 	}
 	
-	/**
-	 * @param offset
-	 * @return
-	 */
-	private Integer getStarterId(DebeziumEventQueueOffset offset, boolean recursiveFetch) {
-		// Default value without offset
-		Integer starterId = 0;
-		
-		// When the application request event with the offset already created should start from FirstRead ( with commit or not)
-		if (offset != null) {
-			if (recursiveFetch) {
-				starterId = offset.getLastRead();
+	private void saveOrUpdateOffset(DebeziumEventQueueOffset offset, Integer firstRead, Integer lastRead,
+	        String applicationName) {
+		if (firstRead != 0) {
+			if (offset != null) {
+				offset.setLastRead(lastRead);
+				offsetDAO.updateOffset(offset);
 			} else {
-				starterId = offset.getFirstRead();
+				offset = new DebeziumEventQueueOffset();
+				offset.setFirstRead(firstRead);
+				offset.setLastRead(lastRead);
+				offset.setApplicationName(applicationName);
+				offset.setActive(Boolean.TRUE);
+				offset.setCreatedAt(new Date());
+				offsetDAO.saveOffset(offset);
 			}
 		}
-		
-		return starterId;
 	}
 	
 	@Override
