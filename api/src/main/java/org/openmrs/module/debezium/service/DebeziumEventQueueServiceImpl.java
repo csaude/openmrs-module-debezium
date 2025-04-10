@@ -10,6 +10,7 @@ import org.openmrs.module.debezium.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,8 +52,6 @@ public class DebeziumEventQueueServiceImpl extends BaseOpenmrsService implements
 					allFetchedEvents.add(debeziumEventQueue);
 					if (allFetchedEvents.size() >= fetchSize) {
 						break;
-					} else {
-						recursiveFetch = Boolean.TRUE;
 					}
 				}
 			}
@@ -68,6 +67,11 @@ public class DebeziumEventQueueServiceImpl extends BaseOpenmrsService implements
 					offset.setActive(Boolean.TRUE);
 					offset.setCreatedAt(new Date());
 				}
+			}
+			
+			// Verify if has to do recursive search
+			if (allFetchedEvents.size() < fetchSize) {
+				recursiveFetch = Boolean.TRUE;
 			}
 		}
 		
@@ -91,15 +95,12 @@ public class DebeziumEventQueueServiceImpl extends BaseOpenmrsService implements
 		Integer starterId = 0;
 		
 		// When the application request event with the offset already created should start from FirstRead ( with commit or not)
-		if (offset != null && offset.isCreated()) {
+		if (offset != null) {
 			if (recursiveFetch) {
 				starterId = offset.getLastRead();
 			} else {
 				starterId = offset.getFirstRead();
 			}
-			// Used when the application is composing the response to client before creating the offset
-		} else if (offset != null && !offset.isCreated() && offset.getLastRead() != null) {
-			starterId = offset.getLastRead();
 		}
 		
 		return starterId;
@@ -110,6 +111,7 @@ public class DebeziumEventQueueServiceImpl extends BaseOpenmrsService implements
 		DebeziumEventQueueOffset offset = offsetDAO.getOffsetByApplicationName(applicationName);
 		if (offset.getLastRead() != null) {
 			offset.setFirstRead(offset.getLastRead());
+			offset.setUpdatedAt(LocalDateTime.now());
 			offset.setLastRead(null);
 			offsetDAO.updateOffset(offset);
 		}

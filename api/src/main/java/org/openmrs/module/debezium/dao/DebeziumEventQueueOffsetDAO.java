@@ -61,8 +61,8 @@ public class DebeziumEventQueueOffsetDAO extends DaoBase {
 			criteriaQuery.where(predicates.toArray(new Predicate[0]));
 			
 			TypedQuery<DebeziumEventQueueOffset> query = session.createQuery(criteriaQuery);
-			
-			return query.getSingleResult();
+			List<DebeziumEventQueueOffset> results = query.getResultList();
+			return results.isEmpty() ? null : results.get(0);
 		});
 	}
 }
