@@ -34,6 +34,11 @@
             <column name="request_uuid" type="CHAR(38)">
                 <constraints unique="true"/>
             </column>
+
+            <column name="previous_state" type="LONGTEXT"/>
+
+            <column name="new_state" type="LONGTEXT"/>
+
             <column name="created_at" type="DATETIME(3)">
                 <constraints nullable="false" />
             </column>

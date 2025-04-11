@@ -28,6 +28,12 @@ public class DebeziumEventQueue extends Auditable {
 	@Column(name = "request_uuid")
 	private String requestUuid;
 	
+	@Column(name = "previous_state")
+	private String previousState;
+	
+	@Column(name = "new_state")
+	private String newState;
+	
 	public Integer getPrimaryKeyId() {
 		return primaryKeyId;
 	}
@@ -74,6 +80,22 @@ public class DebeziumEventQueue extends Auditable {
 	
 	public void setRequestUuid(String requestUuid) {
 		this.requestUuid = requestUuid;
+	}
+	
+	public String getPreviousState() {
+		return previousState;
+	}
+	
+	public void setPreviousState(String previousState) {
+		this.previousState = previousState;
+	}
+	
+	public String getNewState() {
+		return newState;
+	}
+	
+	public void setNewState(String newState) {
+		this.newState = newState;
 	}
 	
 	public String toString() {
