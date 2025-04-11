@@ -76,4 +76,10 @@ public class DebeziumEventQueue extends Auditable {
 		this.requestUuid = requestUuid;
 	}
 	
+	public String toString() {
+		String var10000 = this.tableName;
+		return "Event {table=" + var10000 + ", id=" + String.valueOf(this.primaryKeyId) + ", op="
+		        + String.valueOf(this.operation) + ", snapshot=" + String.valueOf(this.snapshot) + "}";
+	}
+	
 }
