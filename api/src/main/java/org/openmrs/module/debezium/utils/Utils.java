@@ -1,5 +1,7 @@
 package org.openmrs.module.debezium.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.APIAuthenticationException;
@@ -33,8 +35,7 @@ public class Utils {
 	
 	private static final Map<String, String> DATABASE_OPERATION_MAP;
 	
-	public final static List<String> DEMOGRAPHIC_TABLES = Arrays.asList("person", "patient", "person_name", "person_address",
-	    "patient_identifier", "person_attribute");
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 	
 	static {
 		DATABASE_OPERATION_MAP = new HashMap();
@@ -196,6 +197,14 @@ public class Utils {
 		debeziumEvent.setSnapshot(databaseEvent.getSnapshot().equals("TRUE"));
 		debeziumEvent.setPrimaryKeyId((Integer) databaseEvent.getPrimaryKeyId());
 		debeziumEvent.setCreatedAt(new Date());
+		try {
+			debeziumEvent.setNewState(objectMapper.writeValueAsString(databaseEvent.getNewState()));
+			debeziumEvent.setPreviousState(objectMapper.writeValueAsString(databaseEvent.getPreviousState()));
+			
+		}
+		catch (JsonProcessingException e) {
+			throw new RuntimeException("Failed to convert map to JSON string", e);
+		}
 		return debeziumEvent;
 	}
 	

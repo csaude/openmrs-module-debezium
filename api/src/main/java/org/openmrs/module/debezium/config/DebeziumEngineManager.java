@@ -72,10 +72,14 @@ final class DebeziumEngineManager {
 			Consumer<ChangeEvent<SourceRecord, SourceRecord>> eventConsumer = event -> {
 				Function<ChangeEvent<SourceRecord, SourceRecord>, DatabaseEvent> function = new DbChangeToEventFunction();
 				
-				DatabaseEvent dbEvent = function.apply(event);
-				log.debug("Processing event {}", event);
-				DebeziumEventService debeziumService = Context.getService(DebeziumEventService.class);
-				debeziumService.createDebeziumEvent(Utils.convertDataBaseEvent(dbEvent));
+				String applicationName = Context.getRuntimeProperties().getProperty(DebeziumConstants.PROP_DB_USERNAME);
+				
+				if (applicationName != null && !applicationName.isEmpty()) {
+					DatabaseEvent dbEvent = function.apply(event);
+					log.debug("Processing event {}", event);
+					DebeziumEventService debeziumService = Context.getService(DebeziumEventService.class);
+					debeziumService.createDebeziumEvent(Utils.convertDataBaseEvent(dbEvent));
+				}
 			};
 			
 			config.setConsumer(eventConsumer);
