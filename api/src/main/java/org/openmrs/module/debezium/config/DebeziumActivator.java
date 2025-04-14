@@ -50,22 +50,22 @@ public class DebeziumActivator extends BaseModuleActivator {
 		
 		try {
 			SchedulerService schedulerService = Context.getService(SchedulerService.class);
-			TaskDefinition taskDefinition = new TaskDefinition();
-			taskDefinition.setName(TASK_NAME);
-			taskDefinition.setTaskClass(DebeziumPrunerTask.class.getName());
-			taskDefinition.setStartTime(new Date());
-			taskDefinition.setRepeatInterval(10L);
-			taskDefinition.setStartOnStartup(true);
-			taskDefinition.setDescription("Task to be used to prune events read by registered applications");
 			
 			// Check if exists a task running in order to avoid duplicates
-			TaskDefinition existingTask = schedulerService.getTaskByName(taskDefinition.getName());
+			TaskDefinition existingTask = schedulerService.getTaskByName(TASK_NAME);
 			if (existingTask == null) {
+				TaskDefinition taskDefinition = new TaskDefinition();
+				taskDefinition.setName(TASK_NAME);
+				taskDefinition.setTaskClass(DebeziumPrunerTask.class.getName());
+				taskDefinition.setStartTime(new Date());
+				taskDefinition.setRepeatInterval(10L);
+				taskDefinition.setStartOnStartup(true);
+				taskDefinition.setDescription("Task to be used to prune events read by registered applications");
 				schedulerService.saveTaskDefinition(taskDefinition);
 				schedulerService.scheduleTask(taskDefinition);
 				log.info("Scheduled task registered and started: {}", taskDefinition.getName());
 			} else {
-				log.info("Task already registered: {}", taskDefinition.getName());
+				log.info("Task already registered: {}", TASK_NAME);
 			}
 		}
 		catch (SchedulerException e) {
