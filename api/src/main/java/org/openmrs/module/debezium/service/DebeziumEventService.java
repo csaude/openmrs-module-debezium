@@ -8,4 +8,8 @@ public interface DebeziumEventService extends OpenmrsService {
 	
 	@Transactional
 	public void createDebeziumEvent(DebeziumEventQueue debeziumEvent);
+	
+	public void removeProcessedEvents(Integer id);
+	
+	public Integer getMinFirstRead();
 }

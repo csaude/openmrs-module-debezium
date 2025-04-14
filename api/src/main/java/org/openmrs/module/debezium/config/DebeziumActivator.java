@@ -1,12 +1,21 @@
 package org.openmrs.module.debezium.config;
 
+import org.openmrs.api.context.Context;
 import org.openmrs.module.BaseModuleActivator;
+import org.openmrs.module.debezium.task.DebeziumPrunerTask;
+import org.openmrs.scheduler.SchedulerException;
+import org.openmrs.scheduler.SchedulerService;
+import org.openmrs.scheduler.TaskDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 public class DebeziumActivator extends BaseModuleActivator {
 	
 	private static final Logger log = LoggerFactory.getLogger(DebeziumActivator.class);
+	
+	private static final String TASK_NAME = "DEBEZIUM EVENTS PRUNER TASK";
 	
 	/**
 	 * @see org.openmrs.module.BaseModuleActivator#started()
@@ -16,6 +25,7 @@ public class DebeziumActivator extends BaseModuleActivator {
 		log.info("Debezium module started, starting OpenMRS debezium engine");
 		
 		DebeziumEngineManager.start();
+		this.registerTask();
 	}
 	
 	/**
@@ -34,6 +44,34 @@ public class DebeziumActivator extends BaseModuleActivator {
 		log.info("Stopping OpenMRS debezium engine before debezium module is stopped");
 		
 		DebeziumEngineManager.stop();
+	}
+	
+	private void registerTask() {
+		
+		try {
+			SchedulerService schedulerService = Context.getService(SchedulerService.class);
+			TaskDefinition taskDefinition = new TaskDefinition();
+			taskDefinition.setName(TASK_NAME);
+			taskDefinition.setTaskClass(DebeziumPrunerTask.class.getName());
+			taskDefinition.setStartTime(new Date());
+			taskDefinition.setRepeatInterval(10L);
+			taskDefinition.setStartOnStartup(true);
+			taskDefinition.setDescription("Task to be used to prune events read by registered applications");
+			
+			// Check if exists a task running in order to avoid duplicates
+			TaskDefinition existingTask = schedulerService.getTaskByName(taskDefinition.getName());
+			if (existingTask == null) {
+				schedulerService.saveTaskDefinition(taskDefinition);
+				schedulerService.scheduleTask(taskDefinition);
+				log.info("Scheduled task registered and started: {}", taskDefinition.getName());
+			} else {
+				log.info("Task already registered: {}", taskDefinition.getName());
+			}
+		}
+		catch (SchedulerException e) {
+			log.error("Failed to register scheduled task", e);
+		}
+		
 	}
 	
 }
