@@ -77,5 +77,12 @@
             Ex: PDS: person, person_name,...;MPI: person, person_name, ...
         </description>
     </globalProperty>
+    <globalProperty>
+        <property>${project.parent.artifactId}.binlog.prune.active</property>
+        <description>
+            Flag to activate or deactivate the pruner for processed binlog
+        </description>
+        <defaultValue>false</defaultValue>
+    </globalProperty>
 </module>
 

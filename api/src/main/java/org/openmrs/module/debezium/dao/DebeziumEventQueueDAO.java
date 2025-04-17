@@ -1,6 +1,8 @@
 package org.openmrs.module.debezium.dao;
 
+import org.hibernate.query.Query;
 import org.openmrs.module.debezium.entity.DebeziumEventQueue;
+import org.openmrs.module.debezium.entity.DebeziumEventQueueOffset;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -43,6 +45,31 @@ public class DebeziumEventQueueDAO extends DaoBase {
 			}
 			
 			return query.getResultList();
+		});
+	}
+	
+	public void removeProcessedEvents() {
+		executeWithTransaction(sessionFactory, session -> {
+			// get min value of firstRead attribute to prune the table
+			Integer minFirstReaId = this.getMinFirstRead();
+			if (minFirstReaId != null) {
+				String deleteQuery = "delete from DebeziumEventQueue where id <= :id";
+				session.createQuery(deleteQuery).setParameter("id", minFirstReaId).executeUpdate();
+			}
+            return null;
+        });
+	}
+	
+	private Integer getMinFirstRead() {
+		return executeWithTransaction(sessionFactory, session -> {
+			CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+			CriteriaQuery<Integer> criteriaQuery = criteriaBuilder.createQuery(Integer.class);
+			Root<DebeziumEventQueueOffset> root = criteriaQuery.from(DebeziumEventQueueOffset.class);
+			
+			criteriaQuery.select(criteriaBuilder.min(root.get("firstRead")));
+			Query<Integer> query = session.createQuery(criteriaQuery);
+			List<Integer> result = query.getResultList();
+			return result.isEmpty() ? null : result.get(0);
 		});
 	}
 }

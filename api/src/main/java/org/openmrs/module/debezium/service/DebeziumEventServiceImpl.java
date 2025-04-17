@@ -13,6 +13,11 @@ public class DebeziumEventServiceImpl extends BaseOpenmrsService implements Debe
 		eventQueueDAO.createDebeziumEvent(debeziumEvent);
 	}
 	
+	@Override
+	public void removeProcessedEvents() {
+		this.eventQueueDAO.removeProcessedEvents();
+	}
+	
 	public DebeziumEventQueueDAO getEventQueueDAO() {
 		return eventQueueDAO;
 	}
