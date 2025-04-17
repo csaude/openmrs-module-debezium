@@ -52,10 +52,12 @@ public class DebeziumEventQueueDAO extends DaoBase {
 		executeWithTransaction(sessionFactory, session -> {
 			// get min value of firstRead attribute to prune the table
 			Integer minFirstReaId = this.getMinFirstRead();
-			String deleteQuery = "delete from DebeziumEventQueue where id <= :id";
-			session.createQuery(deleteQuery).setParameter("id", minFirstReaId).executeUpdate();
-			return null;
-		});
+			if (minFirstReaId != null) {
+				String deleteQuery = "delete from DebeziumEventQueue where id <= :id";
+				session.createQuery(deleteQuery).setParameter("id", minFirstReaId).executeUpdate();
+			}
+            return null;
+        });
 	}
 	
 	private Integer getMinFirstRead() {
