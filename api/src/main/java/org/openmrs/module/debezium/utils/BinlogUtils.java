@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -68,9 +71,10 @@ public class BinlogUtils {
 		
 		return client;
 	}
-
+	
 	/**
 	 * Extract the binlog file name from a given offset file path
+	 * 
 	 * @param offsetFilePath
 	 * @return
 	 */
@@ -78,6 +82,13 @@ public class BinlogUtils {
 		if (offsetFilePath == null || offsetFilePath.trim().isEmpty()) {
 			log.error("Offset file path is null or empty");
 			throw new IllegalArgumentException("Invalid offset file path");
+		}
+
+		Path path = Paths.get(offsetFilePath);
+
+		if(!Files.exists(path)){
+			log.error("Offset file path does not exist");
+			throw new IllegalArgumentException("Offset file path does not exist: " +  offsetFilePath);
 		}
 		
 		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(offsetFilePath))) {
@@ -99,7 +110,7 @@ public class BinlogUtils {
 					Object file = innerMap.get("file");
 					
 					if (file != null) {
-                        return file.toString();
+						return file.toString();
 					}
 				}
 			}
@@ -120,7 +131,7 @@ public class BinlogUtils {
 	 */
 	public static void purgeBinLogsTo(String toBinLogFile) throws SQLException {
 		try (Connection c = getConnectionToBinaryLogs(); Statement s = c.createStatement()) {
-            log.info("Purging binlog files up to {}", toBinLogFile);
+			log.info("Purging binlog files up to {}", toBinLogFile);
 			s.executeUpdate(QUERY_PURGE_LOGS.replace(FILE_PLACEHOLDER, toBinLogFile));
 			log.info("Successfully purged");
 		}

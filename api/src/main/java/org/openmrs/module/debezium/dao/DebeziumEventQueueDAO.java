@@ -48,15 +48,17 @@ public class DebeziumEventQueueDAO extends DaoBase {
 		});
 	}
 	
-	public void removeProcessedEvents(Integer id) {
+	public void removeProcessedEvents() {
 		executeWithTransaction(sessionFactory, session -> {
+			// get min value of firstRead attribute to prune the table
+			Integer minFirstReaId = this.getMinFirstRead();
 			String deleteQuery = "delete from DebeziumEventQueue where id <= :id";
-			session.createQuery(deleteQuery).setParameter("id", id).executeUpdate();
+			session.createQuery(deleteQuery).setParameter("id", minFirstReaId).executeUpdate();
 			return null;
 		});
 	}
 	
-	public Integer getMinFirstRead() {
+	private Integer getMinFirstRead() {
 		return executeWithTransaction(sessionFactory, session -> {
 			CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
 			CriteriaQuery<Integer> criteriaQuery = criteriaBuilder.createQuery(Integer.class);

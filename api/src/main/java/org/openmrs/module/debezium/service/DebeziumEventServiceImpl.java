@@ -14,13 +14,8 @@ public class DebeziumEventServiceImpl extends BaseOpenmrsService implements Debe
 	}
 	
 	@Override
-	public void removeProcessedEvents(Integer id) {
-		this.eventQueueDAO.removeProcessedEvents(id);
-	}
-	
-	@Override
-	public Integer getMinFirstRead() {
-		return eventQueueDAO.getMinFirstRead();
+	public void removeProcessedEvents() {
+		this.eventQueueDAO.removeProcessedEvents();
 	}
 	
 	public DebeziumEventQueueDAO getEventQueueDAO() {

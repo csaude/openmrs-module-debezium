@@ -58,7 +58,7 @@ public class DebeziumActivator extends BaseModuleActivator {
 				taskDefinition.setName(TASK_NAME);
 				taskDefinition.setTaskClass(DebeziumPrunerTask.class.getName());
 				taskDefinition.setStartTime(new Date());
-				taskDefinition.setRepeatInterval(10L);
+				taskDefinition.setRepeatInterval(1800L);
 				taskDefinition.setStartOnStartup(true);
 				taskDefinition.setDescription("Task to be used to prune events read by registered applications");
 				schedulerService.saveTaskDefinition(taskDefinition);
