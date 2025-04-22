@@ -87,7 +87,7 @@ public class DebeziumEventQueueServiceImpl extends BaseOpenmrsService implements
 	@Override
 	public void commitEventQueue(String applicationName) {
 		DebeziumEventQueueOffset offset = offsetDAO.getOffsetByApplicationName(applicationName);
-		if (offset.getLastRead() != null) {
+		if (offset != null && offset.getLastRead() != null) {
 			offset.setFirstRead(offset.getLastRead());
 			offset.setUpdatedAt(LocalDateTime.now());
 			offset.setLastRead(null);
