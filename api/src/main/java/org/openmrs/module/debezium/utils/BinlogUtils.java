@@ -83,12 +83,12 @@ public class BinlogUtils {
 			log.error("Offset file path is null or empty");
 			throw new IllegalArgumentException("Invalid offset file path");
 		}
-
+		
 		Path path = Paths.get(offsetFilePath);
-
-		if(!Files.exists(path)){
+		
+		if (!Files.exists(path)) {
 			log.error("Offset file path does not exist");
-			throw new IllegalArgumentException("Offset file path does not exist: " +  offsetFilePath);
+			throw new IllegalArgumentException("Offset file path does not exist: " + offsetFilePath);
 		}
 		
 		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(offsetFilePath))) {

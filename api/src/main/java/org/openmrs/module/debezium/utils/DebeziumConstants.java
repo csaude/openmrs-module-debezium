@@ -31,7 +31,7 @@ public class DebeziumConstants {
 	public final static String GP_FETCH_SIZE = MODULE_ID + ".event.default.count";
 	
 	public final static String GP_APPLICATION_NAME = MODULE_ID + ".event.application.name";
-
+	
 	public final static String GP_BINLOG_PRUNE = MODULE_ID + ".binlog.prune.active";
 	
 }

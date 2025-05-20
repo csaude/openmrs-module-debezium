@@ -56,8 +56,8 @@ public class DebeziumEventQueueDAO extends DaoBase {
 				String deleteQuery = "delete from DebeziumEventQueue where id <= :id";
 				session.createQuery(deleteQuery).setParameter("id", minFirstReaId).executeUpdate();
 			}
-            return null;
-        });
+			return null;
+		});
 	}
 	
 	private Integer getMinFirstRead() {
