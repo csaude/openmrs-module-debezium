@@ -14,4 +14,89 @@
         </property>
     </bean>
 
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+
+
+    <bean id="serviceInterceptors" class="org.springframework.aop.interceptor.SimpleTraceInterceptor"/>
+
+    <bean id="transactionAttributeSource" class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource" />
+
+    <bean id="eventQueueService"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="transactionManager" />
+        </property>
+        <property name="target">
+            <bean class="org.openmrs.module.debezium.service.DebeziumEventServiceImpl">
+                <property name="eventQueueDAO">
+                    <bean class="org.openmrs.module.debezium.dao.DebeziumEventQueueDAO">
+                        <property name="sessionFactory">
+                            <ref bean="sessionFactory" />
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+        <property name="preInterceptors">
+            <ref bean="serviceInterceptors" />
+        </property>
+        <property name="transactionAttributeSource">
+            <ref bean="transactionAttributeSource" />
+        </property>
+    </bean>
+
+    <bean id="eventQueueOffsetService"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="transactionManager" />
+        </property>
+        <property name="target">
+            <bean class="org.openmrs.module.debezium.service.DebeziumEventQueueServiceImpl">
+                <property name="eventQueueDAO">
+                    <bean class="org.openmrs.module.debezium.dao.DebeziumEventQueueDAO">
+                        <property name="sessionFactory">
+                            <ref bean="sessionFactory" />
+                        </property>
+                    </bean>
+                </property>
+                <property name="offsetDAO">
+                    <bean class="org.openmrs.module.debezium.dao.DebeziumEventQueueOffsetDAO">
+                        <property name="sessionFactory">
+                            <ref bean="sessionFactory" />
+                        </property>
+                    </bean>
+                </property>
+
+            </bean>
+        </property>
+        <property name="preInterceptors">
+            <ref bean="serviceInterceptors" />
+        </property>
+        <property name="transactionAttributeSource">
+            <ref bean="transactionAttributeSource" />
+        </property>
+    </bean>
+
+
+    <bean parent="serviceContext" >
+        <property name="moduleService">
+            <list>
+                <value>org.openmrs.module.debezium.service.DebeziumEventService</value>
+                <ref bean="eventQueueService" />
+            </list>
+        </property>
+    </bean>
+    <bean parent="serviceContext" >
+        <property name="moduleService">
+            <list>
+                <value>org.openmrs.module.debezium.service.DebeziumEventQueueService</value>
+                <ref bean="eventQueueOffsetService" />
+            </list>
+        </property>
+    </bean>
 </beans>
